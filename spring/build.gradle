@@ -1,0 +1,73 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot'        version '3.3.5'
+    id 'io.spring.dependency-management'  version '1.1.7'
+}
+
+group   = 'com.company.erp'
+version = '0.0.1-SNAPSHOT'
+description = 'ERP + E-Commerce backend (Java / Spring Boot 3.3)'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    jjwtVersion       = '0.12.6'
+    bucket4jVersion   = '8.10.1'
+    springdocVersion  = '2.6.0'
+    testcontainersVer = '1.20.4'
+    firebaseAdminVer  = '9.4.1'
+}
+
+dependencies {
+    // Spring Boot starters
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // PostgreSQL + Flyway
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+
+    // JWT (jjwt 0.12.x)
+    implementation "io.jsonwebtoken:jjwt-api:${jjwtVersion}"
+    runtimeOnly   "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
+    runtimeOnly   "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
+
+    // Rate limiting (Bucket4j, in-memory)
+    implementation "com.bucket4j:bucket4j-core:${bucket4jVersion}"
+
+    // OpenAPI / SwaggerUI (springdoc)
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
+
+    // Firebase Admin (FCM push). Wired in later chat/call module.
+    implementation "com.google.firebase:firebase-admin:${firebaseAdminVer}"
+
+    // Lombok
+    compileOnly        'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainersVer}"
+    testImplementation "org.testcontainers:postgresql:${testcontainersVer}"
+    testCompileOnly        'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testRuntimeOnly    'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

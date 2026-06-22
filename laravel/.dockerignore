@@ -1,0 +1,15 @@
+.git
+.gradle
+build
+vendor
+node_modules
+storage/logs/*.log
+bootstrap/cache/*.php
+.env
+docker-compose.override.yml
+src
+gradle
+gradlew
+gradlew.bat
+build.gradle
+settings.gradle

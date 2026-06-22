@@ -1,0 +1,109 @@
+spring:
+  application:
+    name: erp
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/erp}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: 2
+      pool-name: ErpHikariPool
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    out-of-order: true
+    locations: classpath:db/migration
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${UPLOAD_MAX_FILE_SIZE:25MB}
+      max-request-size: ${UPLOAD_MAX_REQUEST_SIZE:30MB}
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: ${SERVER_CONTEXT_PATH:/}
+  error:
+    include-message: always
+    include-binding-errors: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+app:
+  security:
+    jwt:
+      issuer: ${JWT_ISSUER:erp}
+      secret: ${JWT_SECRET:dev-secret-change-me-in-production-must-be-long-enough-for-hmac-sha256}
+      access-token-ttl: ${JWT_ACCESS_TTL:P365D}
+      refresh-token-ttl: ${JWT_REFRESH_TTL:P365D}
+  cors:
+    allowed-hosts: ${CORS_ALLOWED_HOSTS:*}
+    allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+    allowed-headers: "*"
+  rate-limit:
+    enabled: ${RATE_LIMIT_ENABLED:true}
+    per-minute: ${RATE_LIMIT_PER_MINUTE:120}
+    auth-per-minute: ${AUTH_RATE_LIMIT_PER_MINUTE:20}
+  stream:
+    api-key: ${STREAM_API_KEY:4jgpsany48vw}
+    api-secret: ${STREAM_API_SECRET:dahx3mgg5pcpyg4m8kwtre5yvy7f2rsv9zca38na9a4jenwza8sac49pcunk72pf}
+    token-ttl-minutes: ${STREAM_TOKEN_TTL_MINUTES:60}
+  fcm:
+    enabled: ${FCM_ENABLED:false}
+    service-account-json-path: ${FCM_SERVICE_ACCOUNT_JSON_PATH:}
+  chat:
+    call:
+      # Must match Stream's autoCancelTimeout on the client (60s). Lower values
+      # produce desync (Stream still ringing, backend marked MISSED already);
+      # higher values let Stream drop the call first → same desync from the
+      # other side. Don't push past ~90s.
+      ring-timeout-seconds: ${CHAT_CALL_RING_TIMEOUT_SECONDS:60}
+      # Tolerance for accept POSTs that arrive just past the deadline (real-world
+      # FCM + user reaction lag). Accepts within this many seconds of auto-cancel
+      # revive the call instead of returning 400.
+      accept-grace-seconds: ${CHAT_CALL_ACCEPT_GRACE_SECONDS:5}
+  uploads:
+    avatar:
+      dir: ${UPLOAD_AVATAR_DIR:./uploads/avatars}
+      public-base-url: ${UPLOAD_AVATAR_PUBLIC_BASE_URL:/uploads/avatars}
+      max-file-size: ${UPLOAD_AVATAR_MAX_SIZE:5242880}        # 5 MiB
+      allowed-content-types: ${UPLOAD_AVATAR_ALLOWED_TYPES:image/jpeg,image/png,image/webp}
+
+logging:
+  level:
+    root: INFO
+    com.company.erp: DEBUG

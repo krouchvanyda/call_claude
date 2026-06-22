@@ -1,0 +1,25 @@
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.phpunit.result.cache
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.idea
+/.vscode
+*.iml
+
+# Legacy Java/Gradle build artifacts (project converted to Laravel)
+/.gradle
+/build
+HELP.md
+
+# Database backups contain real PII (emails, FCM tokens, password hashes) — keep out of git.
+database/backups/*.dump
