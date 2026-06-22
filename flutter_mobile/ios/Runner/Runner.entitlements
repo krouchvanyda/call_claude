@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- APNs environment. `development` = APNs sandbox, correct for builds
+	     run from Xcode onto a device. The Stream Dashboard's APN provider
+	     must be set to the matching environment (sandbox for dev builds).
+	     Switch to `production` for TestFlight / App Store. Without this key
+	     iOS never issues a push token, so Stream's VoIP call push can't
+	     reach the app and backgrounded incoming calls never ring. -->
+	<key>aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>

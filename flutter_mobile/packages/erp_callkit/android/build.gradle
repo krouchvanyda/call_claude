@@ -1,0 +1,55 @@
+group 'com.enterprise.erp.erp_callkit'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    // Match the host app exactly (android/settings.gradle.kts):
+    // AGP 8.9.1, Kotlin 2.1.0. Mismatched versions put two AGP/Kotlin
+    // plugins on the build classpath and fail the configure step.
+    ext.kotlin_version = '2.1.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.9.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace 'com.enterprise.erp.erp_callkit'
+    compileSdk 35
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    defaultConfig {
+        // EncryptedSharedPreferences needs API 23+; reads are runtime-
+        // guarded, and the target Samsung devices are 30+. Kept at 21 so
+        // the library minSdk never exceeds the host app's.
+        minSdk 21
+    }
+}
+
+dependencies {
+    // Same artifact + version flutter_secure_storage 9.2.x uses, so we
+    // open the identical EncryptedSharedPreferences store.
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+    implementation 'androidx.core:core-ktx:1.13.1'
+}

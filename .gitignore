@@ -1,0 +1,38 @@
+# ===========================================================================
+# Monorepo ignore rules: spring/ (Java) · laravel/ (PHP) · flutter_mobile/ (Dart)
+# Keeps source tracked; excludes build output, dependencies, and large binaries
+# so the repo stays clonable (GitHub rejects files > 100 MB).
+# ===========================================================================
+
+# OS junk
+.DS_Store
+**/.DS_Store
+
+# ── Flutter app (flutter_mobile) ──────────────────────────────────────────
+flutter_mobile/.dart_tool/
+flutter_mobile/.flutter-plugins
+flutter_mobile/.flutter-plugins-dependencies
+flutter_mobile/build/
+flutter_mobile/android/.gradle/
+flutter_mobile/android/build/
+flutter_mobile/android/app/build/
+flutter_mobile/ios/build/
+flutter_mobile/ios/Pods/
+flutter_mobile/ios/.symlinks/
+flutter_mobile/ios/Flutter/ephemeral/
+flutter_mobile/ios/Flutter/Flutter.framework/
+flutter_mobile/ios/Flutter/Flutter.podspec
+# Device log captures / runtime logs (tens of MB, not source)
+flutter_mobile/logcat_*.txt
+flutter_mobile/*.log
+
+# ── Spring backend (spring) ───────────────────────────────────────────────
+spring/.gradle/
+spring/build/
+
+# ── Laravel backend (laravel) ─────────────────────────────────────────────
+laravel/vendor/
+laravel/node_modules/
+laravel/.env
+# DB backup contains real PII — never commit
+laravel/database/backups/*.dump

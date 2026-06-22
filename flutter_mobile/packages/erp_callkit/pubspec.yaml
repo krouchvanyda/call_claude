@@ -1,0 +1,24 @@
+name: erp_callkit
+description: >
+  Native incoming-call notification for ERP Mobile. Owns the Android
+  incoming-call notification so the Reject button reaches native Kotlin
+  even when the app is killed — letting B decline a call and end A's
+  ringing without the app ever opening. Media still flows through
+  Stream Video; this package is signalling/notification only.
+version: 0.0.1
+publish_to: 'none'
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.35.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.enterprise.erp.erp_callkit
+        pluginClass: ErpCallkitPlugin

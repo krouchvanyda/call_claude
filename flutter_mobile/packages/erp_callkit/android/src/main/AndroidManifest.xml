@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Native reject receiver. Targeted by an EXPLICIT PendingIntent
+         from IncomingCallNotifier, so it must NOT be exported. It runs
+         even when the app process is dead — that is the whole point. -->
+    <application>
+        <receiver
+            android:name=".CallActionReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

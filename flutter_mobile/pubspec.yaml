@@ -1,0 +1,138 @@
+name: erp_mobile
+description: "Enterprise ERP Mobile — clean architecture, offline-first, multi-module."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.35.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # ── State management ────────────────────────────────────────────
+  flutter_bloc: ^8.1.6
+  bloc: ^8.1.4
+  equatable: ^2.0.7
+
+  # ── Dependency injection ────────────────────────────────────────
+  get_it: ^8.0.3
+  injectable: ^2.5.0
+
+  # ── Navigation ──────────────────────────────────────────────────
+  go_router: ^14.6.3
+  page_transition: ^2.1.0
+
+  # ── Networking ──────────────────────────────────────────────────
+  dio: ^5.7.0
+  connectivity_plus: ^6.1.0
+  pretty_dio_logger: ^1.4.0
+  web_socket_channel: ^3.0.1
+  # STOMP client for the chat module's real-backend integration
+  # (Prompt 1 of CHAT_MODULE_BACKEND_INTEGRATIONGUIDE.md). Subscribes
+  # to `/topic/conversations/{id}*` + `/user/queue/*` for inbound;
+  # outbound chat ops go through REST via dio.
+  stomp_dart_client: ^2.1.0
+
+  # ── Real-time audio/video (call media) ──────────────────────────
+  # Module 10 — Stream Video powers actual audio/video on calls.
+  # The signalling state machine + chat ceremony lives in this app;
+  # `stream_video_flutter` opens the media leg once both sides have
+  # accepted, using a per-call CID + JWT issued by our backend at
+  # `GET /api/v1/chats/calls/stream-token`.
+  stream_video_flutter: ^0.10.0
+  # Native incoming-call ringer for Stream Video. Provides the
+  # `PushNotificationManager` impl that StreamVideo() needs to actually
+  # display a proper ring screen (vs the silent grouped notification
+  # the SDK fires by default when no PN manager is configured). Talks
+  # to `flutter_callkit_incoming` natively on Android / iOS — no Dart
+  # render path needed for the heads-up itself.
+  # Pin to the same minor as stream_video_flutter — newer pn versions
+  # require stream_video_flutter ^1.x.
+  stream_video_push_notification: ^0.10.4
+
+  # ── Local persistence ───────────────────────────────────────────
+  drift: ^2.21.0
+  sqlite3_flutter_libs: ^0.5.27
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  shared_preferences: ^2.3.3
+
+  # ── Secure storage / auth ───────────────────────────────────────
+  flutter_secure_storage: ^9.2.2
+  oauth2: ^2.0.3
+  local_auth: ^2.3.0
+  jwt_decoder: ^2.0.1
+
+  # ── Models / serialization ──────────────────────────────────────
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+  dartz: ^0.10.1
+
+  # ── UI / charts / scanning ──────────────────────────────────────
+  fl_chart: ^0.69.2
+  mobile_scanner: ^7.1.4
+  cached_network_image: ^3.4.1
+  flutter_svg: ^2.0.16
+  shimmer: ^3.0.0
+  image_picker: ^1.1.2
+
+  # ── Utilities ───────────────────────────────────────────────────
+  logger: ^2.5.0
+  intl: ^0.20.2
+  collection: ^1.18.0
+  crypto: ^3.0.3
+  meta: ^1.16.0
+  rxdart: ^0.28.0
+  uuid: ^4.5.1
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.2
+  firebase_core: ^3.13.0
+  firebase_messaging: ^15.2.5
+  permission_handler: ^12.0.1
+  flutter_local_notifications: ^19.1.0
+
+  # ── Native incoming-call notification (Module 10) ───────────────
+  # Local plugin that owns the Android incoming-call notification so
+  # the Reject button reaches native Kotlin even when the app is
+  # killed (→ HTTP reject → caller's call ends, app never opens).
+  # See packages/erp_callkit. Media still flows through Stream Video.
+  erp_callkit:
+    path: packages/erp_callkit
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/appLogo.jpg"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  # ── Lints ───────────────────────────────────────────────────────
+  flutter_lints: ^5.0.0
+  very_good_analysis: ^6.0.0
+
+  # ── Codegen ─────────────────────────────────────────────────────
+  build_runner: ^2.4.13
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+  injectable_generator: ^2.6.2
+  drift_dev: ^2.21.0
+
+  # ── Testing ─────────────────────────────────────────────────────
+  bloc_test: ^9.1.7
+  mocktail: ^1.0.4
+  test: ^1.25.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/icons/

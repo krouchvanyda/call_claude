@@ -1,0 +1,14 @@
+# Configuration for `flutter gen-l10n`.
+# Runs automatically on `flutter pub get` because `flutter.generate: true`
+# is set in pubspec.yaml.
+#
+# Generated artifacts (`app_localizations.dart`, `app_localizations_en.dart`,
+# `app_localizations_km.dart`) land under lib/l10n/ alongside the ARB
+# sources — no synthetic `flutter_gen` package, easier to inspect, easier
+# to grep.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-dir: lib/l10n
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

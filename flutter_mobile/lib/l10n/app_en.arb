@@ -1,0 +1,2322 @@
+{
+  "@@locale": "en",
+
+  "appName": "ERP Mobile",
+  "@appName": {
+    "description": "Application title shown on splash and home screens"
+  },
+
+  "loginAppBarTitle": "Sign in",
+  "@loginAppBarTitle": {
+    "description": "Title bar on the login screen"
+  },
+
+  "loginButton": "Sign in (placeholder)",
+  "@loginButton": {
+    "description": "Primary button on the login form. Placeholder copy until Module 1 ships the real OAuth flow."
+  },
+
+  "dashboardTitle": "Dashboard",
+  "@dashboardTitle": {
+    "description": "Title bar on the dashboard / home screen"
+  },
+
+  "dashboardPlaceholder": "Dashboard placeholder — Module 2 will fill this in.",
+  "@dashboardPlaceholder": {
+    "description": "Body text on the dashboard while Module 2 is unimplemented"
+  },
+
+  "signOutTooltip": "Sign out",
+  "@signOutTooltip": {
+    "description": "Tooltip on the sign-out icon button in the dashboard app bar"
+  },
+
+  "notFoundTitle": "Not found",
+  "@notFoundTitle": {
+    "description": "Title bar on the 404 / no-route-matched page"
+  },
+
+  "notFoundBody": "No route matches \"{location}\"",
+  "@notFoundBody": {
+    "description": "Body text on the 404 page; explains which path the router could not resolve",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "/finance/invoices/42"
+      }
+    }
+  },
+
+  "goHome": "Go home",
+  "@goHome": {
+    "description": "Action button that returns the user to the splash / home route"
+  },
+
+  "loginOtpDemoLink": "[demo] Try MFA code",
+  "@loginOtpDemoLink": {
+    "description": "Subtle text button on the login page that navigates to the OTP demo route (Slice 1.2.1)"
+  },
+
+  "otpPageTitle": "Verification",
+  "@otpPageTitle": {
+    "description": "Title bar on the OTP / TOTP entry page"
+  },
+
+  "otpSubtitle": "Enter the 6-digit code from your authenticator app or SMS.",
+  "@otpSubtitle": {
+    "description": "Body copy under the OTP page icon, instructing the user"
+  },
+
+  "otpDevHint": "Demo: enter {code} to continue",
+  "@otpDevHint": {
+    "description": "Italic hint reminding the user of the dev backdoor code while the real verifier is not wired",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "123456"
+      }
+    }
+  },
+
+  "otpVerifyButton": "Verify",
+  "@otpVerifyButton": {
+    "description": "Primary action button on the OTP page"
+  },
+
+  "otpErrorIncorrect": "Code is incorrect. Please try again.",
+  "@otpErrorIncorrect": {
+    "description": "Error shown under the OTP boxes when the entered code does not match"
+  },
+
+  "otpErrorExpired": "This code has expired. Request a new one.",
+  "@otpErrorExpired": {
+    "description": "Error shown when the OTP validity window has elapsed"
+  },
+
+  "otpErrorTooManyAttempts": "Too many attempts. Please try again later.",
+  "@otpErrorTooManyAttempts": {
+    "description": "Error shown when the server throttles further OTP attempts"
+  },
+
+  "otpErrorNetwork": "Couldn't reach the server. Check your connection.",
+  "@otpErrorNetwork": {
+    "description": "Error shown when the OTP verifier is unreachable"
+  },
+
+  "forbiddenTitle": "Access denied",
+  "@forbiddenTitle": {
+    "description": "Title bar on the 403 / permission-gated landing page"
+  },
+
+  "forbiddenBody": "You don't have permission to access \"{location}\".",
+  "@forbiddenBody": {
+    "description": "Body text on the forbidden page; explains which path was denied",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "/admin-demo"
+      }
+    }
+  },
+
+  "adminDemoTitle": "Admin demo",
+  "@adminDemoTitle": {
+    "description": "Title bar on the permission-gated demo page (Slice 1.3.2)"
+  },
+
+  "adminDemoBody": "You reached the admin-only demo route — RBAC works.",
+  "@adminDemoBody": {
+    "description": "Body of the admin demo page, confirming the route guard let the user through"
+  },
+
+  "dashboardAdminDemoLink": "[demo] Open admin-only page",
+  "@dashboardAdminDemoLink": {
+    "description": "Subtle text button on the dashboard that navigates to the admin-only demo route (Slice 1.3.2)"
+  },
+
+  "permissionGuardDemoGranted": "[demo] PermissionGuard: admin granted",
+  "@permissionGuardDemoGranted": {
+    "description": "Chip label on the dashboard when the live PermissionGuard verdict for `admin` is allowed (Slice 1.3.3)"
+  },
+
+  "permissionGuardDemoDenied": "[demo] PermissionGuard: admin denied",
+  "@permissionGuardDemoDenied": {
+    "description": "Chip label on the dashboard when the live PermissionGuard verdict for `admin` is denied (Slice 1.3.3)"
+  },
+
+  "shellHome": "Home",
+  "@shellHome": {
+    "description": "Bottom-nav / rail label for the Home (dashboard) shell branch"
+  },
+
+  "shellModules": "Modules",
+  "@shellModules": {
+    "description": "Bottom-nav / rail label for the Modules shell branch (Slice 2.1.2 fills it)"
+  },
+
+  "shellSettings": "Settings",
+  "@shellSettings": {
+    "description": "Bottom-nav / rail label for the Settings shell branch (Module 9 fills it)"
+  },
+
+  "modulesTitle": "Modules",
+  "@modulesTitle": {
+    "description": "AppBar title on the Modules placeholder page"
+  },
+
+  "modulesPlaceholder": "Module shortcut tiles land here in Slice 2.1.2.",
+  "@modulesPlaceholder": {
+    "description": "Body text on the Modules placeholder page (kept for compatibility — no longer rendered after Slice 2.1.2)"
+  },
+
+  "modulesEmpty": "No modules are available for your role yet. Ask an admin to grant the permissions you need.",
+  "@modulesEmpty": {
+    "description": "Empty-state message on the Modules grid when the signed-in user holds no permission that satisfies any catalog tile"
+  },
+
+  "shortcutAdminDemo": "Admin demo",
+  "@shortcutAdminDemo": {
+    "description": "Module-grid tile label for the Slice 1.3.2 admin-only demo route"
+  },
+
+  "shortcutFinance": "Finance",
+  "@shortcutFinance": {
+    "description": "Module-grid tile label for the Finance feature module (CLAUDE.md Module 3)"
+  },
+
+  "shortcutProcurement": "Procurement",
+  "@shortcutProcurement": {
+    "description": "Module-grid tile label for the Procurement feature module (CLAUDE.md Module 4)"
+  },
+
+  "shortcutInventory": "Inventory",
+  "@shortcutInventory": {
+    "description": "Module-grid tile label for the Inventory feature module (CLAUDE.md Module 5)"
+  },
+
+  "shortcutSales": "Sales",
+  "@shortcutSales": {
+    "description": "Module-grid tile label for the Sales & CRM feature module (CLAUDE.md Module 6)"
+  },
+
+  "shortcutHr": "HR",
+  "@shortcutHr": {
+    "description": "Module-grid tile label for the Human Resources feature module (CLAUDE.md Module 7)"
+  },
+
+  "shortcutProjects": "Projects",
+  "@shortcutProjects": {
+    "description": "Module-grid tile label for the Project Management feature module (CLAUDE.md Module 8)"
+  },
+
+  "comingSoonBody": "{module} ships in a future release.",
+  "@comingSoonBody": {
+    "description": "Body of the generic coming-soon landing page; explains which module the user reached",
+    "placeholders": {
+      "module": {
+        "type": "String",
+        "example": "Finance"
+      }
+    }
+  },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "AppBar title on the Settings placeholder page"
+  },
+
+  "settingsPlaceholder": "Real preferences land here in Module 9.",
+  "@settingsPlaceholder": {
+    "description": "Body text on the Settings placeholder page"
+  },
+
+  "globalSearchTooltip": "Search",
+  "@globalSearchTooltip": {
+    "description": "Tooltip on the global search icon button in the AppBar (Slice 2.1.3)"
+  },
+
+  "globalSearchHint": "Search modules, records, people…",
+  "@globalSearchHint": {
+    "description": "Placeholder text inside the global search overlay's text field"
+  },
+
+  "globalSearchPrompt": "Type to search across every module you can access.",
+  "@globalSearchPrompt": {
+    "description": "Idle-state body shown in the search overlay before the user has typed anything"
+  },
+
+  "globalSearchNoResults": "No results for \"{query}\".",
+  "@globalSearchNoResults": {
+    "description": "Empty-results body shown after a search returns nothing across all providers",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "invoice"
+      }
+    }
+  },
+
+  "globalSearchError": "Search failed: {message}",
+  "@globalSearchError": {
+    "description": "Body shown when the federated search use case itself throws (per-provider failures are absorbed silently)",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Network unreachable"
+      }
+    }
+  },
+
+  "kpiTrendUp": "up",
+  "@kpiTrendUp": {
+    "description": "Fallback short label on a KPI trend chip when the caller didn't supply a numeric delta — direction is up"
+  },
+
+  "kpiTrendDown": "down",
+  "@kpiTrendDown": {
+    "description": "Fallback short label on a KPI trend chip — direction is down"
+  },
+
+  "kpiTrendFlat": "flat",
+  "@kpiTrendFlat": {
+    "description": "Fallback short label on a KPI trend chip — no meaningful change since the prior period"
+  },
+
+  "kpiTrendUpTooltip": "Up vs prior period",
+  "@kpiTrendUpTooltip": {
+    "description": "Tooltip surfaced when hovering / long-pressing a KPI trend chip pointing up"
+  },
+
+  "kpiTrendDownTooltip": "Down vs prior period",
+  "@kpiTrendDownTooltip": {
+    "description": "Tooltip surfaced when hovering / long-pressing a KPI trend chip pointing down"
+  },
+
+  "kpiTrendFlatTooltip": "No meaningful change vs prior period",
+  "@kpiTrendFlatTooltip": {
+    "description": "Tooltip surfaced when hovering / long-pressing a flat KPI trend chip"
+  },
+
+  "chartRevenueTrendTitle": "Revenue trend",
+  "@chartRevenueTrendTitle": {
+    "description": "Title of the demo line chart on the dashboard (Slice 2.2.3)"
+  },
+
+  "chartSalesByRegionTitle": "Sales by region",
+  "@chartSalesByRegionTitle": {
+    "description": "Title of the demo bar chart on the dashboard (Slice 2.2.3)"
+  },
+
+  "chartSeriesRevenue": "Revenue",
+  "@chartSeriesRevenue": {
+    "description": "Legend label for the revenue series on the line chart"
+  },
+
+  "chartSeriesTarget": "Target",
+  "@chartSeriesTarget": {
+    "description": "Legend label for the target series on the line chart"
+  },
+
+  "chartSeriesSales": "Sales",
+  "@chartSeriesSales": {
+    "description": "Legend label for the sales series on the bar chart"
+  },
+
+  "realtimeStatusLive": "Live",
+  "@realtimeStatusLive": {
+    "description": "Realtime status pill — WebSocket is connected, server pushes are flowing (Slice 2.2.4)"
+  },
+
+  "realtimeStatusConnecting": "Connecting",
+  "@realtimeStatusConnecting": {
+    "description": "Realtime status pill — first-attempt handshake is in flight"
+  },
+
+  "realtimeStatusReconnecting": "Reconnecting",
+  "@realtimeStatusReconnecting": {
+    "description": "Realtime status pill — connection dropped, sleeping a backoff window before the next attempt"
+  },
+
+  "realtimeStatusOffline": "Offline",
+  "@realtimeStatusOffline": {
+    "description": "Realtime status pill — service hasn't started or reconnect attempts have been exhausted"
+  },
+
+  "pushDemoButton": "[dev] Simulate push",
+  "@pushDemoButton": {
+    "description": "Dashboard button that fires a fake push payload through the router (Slice 2.3.2). Visible only when LocalPushSimulator is bound."
+  },
+
+  "pushDemoTitle": "Demo notification #{count}",
+  "@pushDemoTitle": {
+    "description": "Title of the synthetic push payload generated by the dashboard demo button",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+
+  "pushDemoBody": "Routed through PushMessageRouter into the inbox cache.",
+  "@pushDemoBody": {
+    "description": "Body of the synthetic push payload from the demo button"
+  },
+
+  "pushDemoSnack": "Pushed to inbox.",
+  "@pushDemoSnack": {
+    "description": "Snackbar confirming the simulated push reached the inbox"
+  },
+
+  "notificationsBadgeTooltip": "Notifications",
+  "@notificationsBadgeTooltip": {
+    "description": "Tooltip on the AppBar bell icon (Slice 2.3.3)"
+  },
+
+  "notificationInboxTitle": "Notifications",
+  "@notificationInboxTitle": {
+    "description": "AppBar title on the notification inbox page"
+  },
+
+  "notificationInboxEmpty": "You're all caught up. New notifications will appear here.",
+  "@notificationInboxEmpty": {
+    "description": "Body shown in the inbox when there are zero non-dismissed notifications"
+  },
+
+  "notificationInboxError": "Couldn't load notifications: {message}",
+  "@notificationInboxError": {
+    "description": "Body shown when the inbox watch stream errors",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Database closed"
+      }
+    }
+  },
+
+  "notificationInboxMarkAllRead": "Mark all as read",
+  "@notificationInboxMarkAllRead": {
+    "description": "Tooltip on the AppBar action that fires the MarkedAllRead event"
+  },
+
+  "notificationInboxDismissedSnack": "Notification dismissed.",
+  "@notificationInboxDismissedSnack": {
+    "description": "Snackbar surfaced after a swipe-to-dismiss gesture"
+  },
+
+  "notificationDeepLinkError": "Couldn't open this notification: {message}",
+  "@notificationDeepLinkError": {
+    "description": "Snackbar shown when a notification's routeName doesn't resolve (e.g. stale push pointing at a route renamed since) — Slice 2.3.4",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "no GoRoute matches name 'invoiceDetail'"
+      }
+    }
+  },
+
+  "notificationDeepLinkViewAction": "View",
+  "@notificationDeepLinkViewAction": {
+    "description": "Snackbar action label that follows a foreground push directly to its deep-link target (Slice 2.3.4)"
+  },
+
+  "pushDemoRoutedButton": "[dev] Simulate routed push",
+  "@pushDemoRoutedButton": {
+    "description": "Dashboard button that fires a fake push payload carrying a deep-link route (Slice 2.3.4). Visible only when LocalPushSimulator is bound."
+  },
+
+  "pushDemoRoutedBody": "Tap this notification — or the Snackbar's View — to deep-link to the target.",
+  "@pushDemoRoutedBody": {
+    "description": "Body of the synthetic routed push payload"
+  },
+
+  "chartOfAccountsTitle": "Chart of accounts",
+  "@chartOfAccountsTitle": {
+    "description": "AppBar title on the chart-of-accounts tree view (Slice 3.1.1)"
+  },
+
+  "chartOfAccountsEmpty": "No accounts have been loaded yet.",
+  "@chartOfAccountsEmpty": {
+    "description": "Empty-state body shown when the accounts feed yields no rows"
+  },
+
+  "chartOfAccountsError": "Couldn't load the chart of accounts: {message}",
+  "@chartOfAccountsError": {
+    "description": "Body shown when the accounts watch stream errors",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Database closed"
+      }
+    }
+  },
+
+  "chartOfAccountsExpandAll": "Expand all",
+  "@chartOfAccountsExpandAll": {
+    "description": "Tooltip on the AppBar action that opens every non-leaf node"
+  },
+
+  "chartOfAccountsCollapseAll": "Collapse all",
+  "@chartOfAccountsCollapseAll": {
+    "description": "Tooltip on the AppBar action that collapses every non-leaf node"
+  },
+
+  "dashboardChartOfAccountsLink": "[demo] Open chart of accounts",
+  "@dashboardChartOfAccountsLink": {
+    "description": "Dashboard text button bypassing the Modules grid's RBAC gate to reach /finance/accounts directly (Slice 3.1.1)"
+  },
+
+  "accountTypeAsset": "Asset",
+  "@accountTypeAsset": {"description": "Localised label for AccountType.asset"},
+
+  "accountTypeLiability": "Liability",
+  "@accountTypeLiability": {
+    "description": "Localised label for AccountType.liability"
+  },
+
+  "accountTypeEquity": "Equity",
+  "@accountTypeEquity": {
+    "description": "Localised label for AccountType.equity"
+  },
+
+  "accountTypeRevenue": "Revenue",
+  "@accountTypeRevenue": {
+    "description": "Localised label for AccountType.revenue"
+  },
+
+  "accountTypeExpense": "Expense",
+  "@accountTypeExpense": {
+    "description": "Localised label for AccountType.expense"
+  },
+
+  "accountDetailTitle": "Account",
+  "@accountDetailTitle": {
+    "description": "Fallback AppBar title on the account detail page before the account loads (Slice 3.1.2)"
+  },
+
+  "accountDetailNoTransactions": "No transactions have been posted to this account yet.",
+  "@accountDetailNoTransactions": {
+    "description": "Empty-state body shown when an account has zero transactions"
+  },
+
+  "accountDetailNotFound": "We couldn't find an account with id \"{accountId}\".",
+  "@accountDetailNotFound": {
+    "description": "Body shown when the URL's :id doesn't match any account (deleted server-side, typo, etc.)",
+    "placeholders": {
+      "accountId": {
+        "type": "String",
+        "example": "a-1110"
+      }
+    }
+  },
+
+  "accountDetailError": "Couldn't load this account: {message}",
+  "@accountDetailError": {
+    "description": "Body shown when either watch stream errors",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Database closed"
+      }
+    }
+  },
+
+  "invoiceListTitle": "Invoices",
+  "@invoiceListTitle": {"description": "AppBar title on the invoice list page (Slice 3.2.1)"},
+  "invoiceListSearchHint": "Search by number or customer",
+  "@invoiceListSearchHint": {"description": "Placeholder in the invoice list search field"},
+  "invoiceListSortTooltip": "Sort",
+  "@invoiceListSortTooltip": {"description": "Tooltip on the invoice list sort menu"},
+  "invoiceListEmpty": "No invoices match your filters.",
+  "@invoiceListEmpty": {"description": "Empty state on the invoice list"},
+  "invoiceListError": "Couldn't load invoices: {message}",
+  "@invoiceListError": {
+    "description": "Failure body on the invoice list",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "invoiceListDueLabel": "due {date}",
+  "@invoiceListDueLabel": {
+    "description": "Subtitle suffix \"due 2026-06-01\" on each invoice tile",
+    "placeholders": {"date": {"type": "String"}}
+  },
+
+  "invoiceStatusDraft": "Draft",
+  "@invoiceStatusDraft": {"description": "Invoice approval status — editable, not yet submitted"},
+  "invoiceStatusPendingApproval": "Pending approval",
+  "@invoiceStatusPendingApproval": {"description": "Invoice approval status — submitted, awaiting decision"},
+  "invoiceStatusApproved": "Approved",
+  "@invoiceStatusApproved": {"description": "Invoice approval status — approver said yes"},
+  "invoiceStatusRejected": "Rejected",
+  "@invoiceStatusRejected": {"description": "Invoice approval status — approver said no"},
+
+  "invoiceSortIssuedDesc": "Issued (newest)",
+  "@invoiceSortIssuedDesc": {"description": "Invoice list sort axis"},
+  "invoiceSortIssuedAsc": "Issued (oldest)",
+  "@invoiceSortIssuedAsc": {"description": "Invoice list sort axis"},
+  "invoiceSortDueAsc": "Due (soonest)",
+  "@invoiceSortDueAsc": {"description": "Invoice list sort axis"},
+  "invoiceSortAmountDesc": "Amount (largest)",
+  "@invoiceSortAmountDesc": {"description": "Invoice list sort axis"},
+  "invoiceSortNumberAsc": "Invoice number",
+  "@invoiceSortNumberAsc": {"description": "Invoice list sort axis"},
+
+  "invoiceDetailTitle": "Invoice",
+  "@invoiceDetailTitle": {"description": "Slice 3.2.2 detail AppBar title"},
+  "invoiceDetailIssuedLabel": "Issued",
+  "@invoiceDetailIssuedLabel": {"description": "Header meta label"},
+  "invoiceDetailDueLabel": "Due",
+  "@invoiceDetailDueLabel": {"description": "Header meta label"},
+  "invoiceDetailLinesHeading": "Line items",
+  "@invoiceDetailLinesHeading": {"description": "Section heading"},
+  "invoiceDetailSubtotalLabel": "Subtotal",
+  "@invoiceDetailSubtotalLabel": {"description": "Totals row label"},
+  "invoiceDetailTaxLabel": "Tax",
+  "@invoiceDetailTaxLabel": {"description": "Totals row label"},
+  "invoiceDetailTotalLabel": "Total",
+  "@invoiceDetailTotalLabel": {"description": "Totals row label"},
+  "invoiceDetailNotesHeading": "Notes",
+  "@invoiceDetailNotesHeading": {"description": "Notes section heading"},
+  "invoiceDetailPdfHeading": "PDF preview",
+  "@invoiceDetailPdfHeading": {"description": "Heading on the PDF placeholder card"},
+  "invoiceDetailPdfPlaceholder": "PDF rendering ships with the backend that serves it.",
+  "@invoiceDetailPdfPlaceholder": {"description": "Body on the PDF placeholder card"},
+  "invoiceDetailNotFound": "We couldn't find an invoice with id \"{invoiceId}\".",
+  "@invoiceDetailNotFound": {
+    "description": "Not-found body on the detail page",
+    "placeholders": {"invoiceId": {"type": "String"}}
+  },
+  "invoiceDetailError": "Couldn't load this invoice: {message}",
+  "@invoiceDetailError": {
+    "description": "Failure body on the detail page",
+    "placeholders": {"message": {"type": "String"}}
+  },
+
+  "invoiceApproveAction": "Approve",
+  "@invoiceApproveAction": {"description": "Slice 3.2.4 approve button label"},
+  "invoiceRejectAction": "Reject",
+  "@invoiceRejectAction": {"description": "Slice 3.2.4 reject button label"},
+  "invoiceSubmitAction": "Submit for approval",
+  "@invoiceSubmitAction": {"description": "Slice 3.2.4 draft → pendingApproval transition button"},
+  "invoiceReopenAction": "Re-open for revision",
+  "@invoiceReopenAction": {"description": "Slice 3.2.4 rejected → draft transition button"},
+  "invoiceActionCancel": "Cancel",
+  "@invoiceActionCancel": {"description": "Generic cancel for approve/reject bottom sheets"},
+
+  "invoiceApproveSheetTitle": "Approve this invoice?",
+  "@invoiceApproveSheetTitle": {"description": "Approve bottom sheet title"},
+  "invoiceApproveSheetBody": "You're about to approve {invoiceNumber}. The invoice will be locked once approved.",
+  "@invoiceApproveSheetBody": {
+    "description": "Approve bottom sheet body",
+    "placeholders": {"invoiceNumber": {"type": "String"}}
+  },
+  "invoiceRejectSheetTitle": "Reject this invoice?",
+  "@invoiceRejectSheetTitle": {"description": "Reject bottom sheet title"},
+  "invoiceRejectSheetBody": "{invoiceNumber} will be returned to the requester with the reason below.",
+  "@invoiceRejectSheetBody": {
+    "description": "Reject bottom sheet body",
+    "placeholders": {"invoiceNumber": {"type": "String"}}
+  },
+  "invoiceRejectReasonLabel": "Reason",
+  "@invoiceRejectReasonLabel": {"description": "Reject reason field label"},
+  "invoiceRejectReasonHint": "Why is this invoice being rejected?",
+  "@invoiceRejectReasonHint": {"description": "Reject reason field hint"},
+  "invoiceRejectReasonRequired": "Please give a reason.",
+  "@invoiceRejectReasonRequired": {"description": "Reject form validator — empty reason"},
+
+  "invoiceActionSuccess": "Invoice marked as {status}.",
+  "@invoiceActionSuccess": {
+    "description": "Snackbar after a successful workflow action",
+    "placeholders": {"status": {"type": "String"}}
+  },
+  "invoiceActionForbidden": "You don't have permission to action this invoice.",
+  "@invoiceActionForbidden": {"description": "Snackbar when finance.approve is missing"},
+  "invoiceActionNotFound": "That invoice no longer exists.",
+  "@invoiceActionNotFound": {"description": "Snackbar when the invoice id is unknown"},
+  "invoiceActionInvalidState": "This invoice has already been actioned.",
+  "@invoiceActionInvalidState": {"description": "Snackbar for the InvalidStateFailure / no-double-action guard"},
+  "invoiceActionUnauthorized": "Sign-in expired — please sign in again.",
+  "@invoiceActionUnauthorized": {"description": "Snackbar when no signed-in user is present"},
+  "invoiceActionGenericError": "Couldn't action the invoice: {message}",
+  "@invoiceActionGenericError": {
+    "description": "Fallback snackbar for unmapped failures",
+    "placeholders": {"message": {"type": "String"}}
+  },
+
+  "invoiceAuditApprovedHeading": "Approved",
+  "@invoiceAuditApprovedHeading": {"description": "Audit card heading on approved invoices"},
+  "invoiceAuditRejectedHeading": "Rejected",
+  "@invoiceAuditRejectedHeading": {"description": "Audit card heading on rejected invoices"},
+  "invoiceAuditActorLine": "by {userId}",
+  "@invoiceAuditActorLine": {
+    "description": "Audit card — who actioned",
+    "placeholders": {"userId": {"type": "String"}}
+  },
+  "invoiceAuditWhenLine": "at {when}",
+  "@invoiceAuditWhenLine": {
+    "description": "Audit card — when actioned",
+    "placeholders": {"when": {"type": "String"}}
+  },
+  "invoiceAuditReasonLine": "Reason: {reason}",
+  "@invoiceAuditReasonLine": {
+    "description": "Audit card — rejection reason",
+    "placeholders": {"reason": {"type": "String"}}
+  },
+
+  "invoiceFormCreateTitle": "New invoice",
+  "@invoiceFormCreateTitle": {"description": "Slice 3.2.3 form AppBar title (create mode)"},
+  "invoiceFormEditTitle": "Edit invoice",
+  "@invoiceFormEditTitle": {"description": "Slice 3.2.3 form AppBar title (edit mode)"},
+  "invoiceFormSaveTooltip": "Save",
+  "@invoiceFormSaveTooltip": {"description": "Tooltip on the save action"},
+  "invoiceFormSaveAction": "Save invoice",
+  "@invoiceFormSaveAction": {"description": "Bottom save button label"},
+  "invoiceFormSavedSnack": "Invoice saved.",
+  "@invoiceFormSavedSnack": {"description": "Snackbar after a successful save"},
+  "invoiceFormCustomerLabel": "Customer",
+  "@invoiceFormCustomerLabel": {"description": "Form field label"},
+  "invoiceFormIssuedLabel": "Issued date",
+  "@invoiceFormIssuedLabel": {"description": "Form field label"},
+  "invoiceFormDueLabel": "Due date",
+  "@invoiceFormDueLabel": {"description": "Form field label"},
+  "invoiceFormLineHeading": "Line item",
+  "@invoiceFormLineHeading": {"description": "Section heading"},
+  "invoiceFormLineDescriptionLabel": "Description",
+  "@invoiceFormLineDescriptionLabel": {"description": "Form field label"},
+  "invoiceFormLineQuantityLabel": "Quantity",
+  "@invoiceFormLineQuantityLabel": {"description": "Form field label"},
+  "invoiceFormLineUnitPriceLabel": "Unit price",
+  "@invoiceFormLineUnitPriceLabel": {"description": "Form field label"},
+
+  "validatorRequired": "Required",
+  "@validatorRequired": {"description": "Form validator: empty field"},
+  "validatorInvalidNumber": "Must be a number",
+  "@validatorInvalidNumber": {"description": "Form validator: non-numeric"},
+  "validatorMustBePositive": "Must be greater than 0",
+  "@validatorMustBePositive": {"description": "Form validator: zero or negative"},
+  "validatorMustBeNonNegative": "Cannot be negative",
+  "@validatorMustBeNonNegative": {"description": "Form validator: negative"},
+  "validatorDueBeforeIssued": "Due date must be on or after the issued date",
+  "@validatorDueBeforeIssued": {"description": "Form validator: due-before-issued"},
+
+  "journalEntriesTitle": "Journal entries",
+  "@journalEntriesTitle": {"description": "Slice 3.3.1 AppBar title"},
+  "journalEntriesEmpty": "No journal entries posted in this period.",
+  "@journalEntriesEmpty": {"description": "Empty state on the journal entry list"},
+  "journalEntryDetailTitle": "Journal entry",
+  "@journalEntryDetailTitle": {"description": "Detail page AppBar title"},
+  "journalEntryNotFound": "Journal entry \"{id}\" was not found.",
+  "@journalEntryNotFound": {
+    "description": "Not-found body",
+    "placeholders": {"id": {"type": "String"}}
+  },
+  "journalEntryAccountColumn": "Account",
+  "@journalEntryAccountColumn": {"description": "Detail table column header"},
+  "journalEntryDebitColumn": "Debit",
+  "@journalEntryDebitColumn": {"description": "Detail table column header"},
+  "journalEntryCreditColumn": "Credit",
+  "@journalEntryCreditColumn": {"description": "Detail table column header"},
+  "journalEntryTotalLabel": "Total",
+  "@journalEntryTotalLabel": {"description": "Detail totals row label"},
+
+  "trialBalanceTitle": "Trial balance",
+  "@trialBalanceTitle": {"description": "Slice 3.3.2 AppBar title"},
+  "trialBalanceEmpty": "No accounts have non-zero balances yet.",
+  "@trialBalanceEmpty": {"description": "Empty state on the trial balance"},
+  "trialBalanceColumnCode": "Code",
+  "@trialBalanceColumnCode": {"description": "Trial balance column header"},
+  "trialBalanceColumnName": "Account",
+  "@trialBalanceColumnName": {"description": "Trial balance column header"},
+  "trialBalanceColumnDebit": "Debit",
+  "@trialBalanceColumnDebit": {"description": "Trial balance column header"},
+  "trialBalanceColumnCredit": "Credit",
+  "@trialBalanceColumnCredit": {"description": "Trial balance column header"},
+  "trialBalancePageOf": "Page {current} of {total}",
+  "@trialBalancePageOf": {
+    "description": "Pagination chip text",
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "trialBalanceExportCsvTooltip": "Export CSV",
+  "@trialBalanceExportCsvTooltip": {"description": "Slice 3.3.3 export action tooltip"},
+  "trialBalanceExportSuccess": "CSV saved to {path}",
+  "@trialBalanceExportSuccess": {
+    "description": "Snackbar after a successful export",
+    "placeholders": {"path": {"type": "String"}}
+  },
+  "trialBalanceExportError": "CSV export failed: {message}",
+  "@trialBalanceExportError": {
+    "description": "Snackbar after a failed export",
+    "placeholders": {"message": {"type": "String"}}
+  },
+
+  "validatorInvalidEmail": "Please enter a valid email",
+  "@validatorInvalidEmail": {"description": "Form validator: bad email"},
+
+  "prListTitle": "Purchase requests",
+  "@prListTitle": {"description": "Slice 4.1.1 PR list AppBar title"},
+  "prListNewTooltip": "New PR",
+  "@prListNewTooltip": {"description": "AppBar add-button tooltip"},
+  "prListSearchHint": "Search by number, requester, cost center",
+  "@prListSearchHint": {"description": "PR list search field hint"},
+  "prListSortTooltip": "Sort",
+  "@prListSortTooltip": {"description": "PR list sort menu tooltip"},
+  "prListEmpty": "No purchase requests match your filters.",
+  "@prListEmpty": {"description": "PR list empty state"},
+  "prListError": "Couldn't load purchase requests: {message}",
+  "@prListError": {
+    "description": "PR list failure body",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "prStatusDraft": "Draft",
+  "@prStatusDraft": {"description": "PR status label"},
+  "prStatusSubmitted": "Submitted",
+  "@prStatusSubmitted": {"description": "PR status label"},
+  "prStatusApproved": "Approved",
+  "@prStatusApproved": {"description": "PR status label"},
+  "prStatusRejected": "Rejected",
+  "@prStatusRejected": {"description": "PR status label"},
+  "prStatusConverted": "Converted",
+  "@prStatusConverted": {"description": "PR status label — PR has become a PO"},
+  "prSortCreatedDesc": "Created (newest)",
+  "@prSortCreatedDesc": {"description": "PR sort axis"},
+  "prSortCreatedAsc": "Created (oldest)",
+  "@prSortCreatedAsc": {"description": "PR sort axis"},
+  "prSortTotalDesc": "Total (largest)",
+  "@prSortTotalDesc": {"description": "PR sort axis"},
+  "prSortNumberAsc": "PR number",
+  "@prSortNumberAsc": {"description": "PR sort axis"},
+
+  "prFormCreateTitle": "New purchase request",
+  "@prFormCreateTitle": {"description": "Slice 4.1.2 form AppBar title"},
+  "prFormSaveTooltip": "Submit",
+  "@prFormSaveTooltip": {"description": "PR form save button tooltip"},
+  "prFormSubmitAction": "Submit request",
+  "@prFormSubmitAction": {"description": "PR form bottom submit button"},
+  "prFormSavedSnack": "Purchase request submitted.",
+  "@prFormSavedSnack": {"description": "Snackbar after PR save"},
+  "prFormSaveFailed": "Couldn't submit the request: {message}",
+  "@prFormSaveFailed": {
+    "description": "Snackbar after PR save failure",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "prFormRequesterLabel": "Requester",
+  "@prFormRequesterLabel": {"description": "PR form field label"},
+  "prFormCostCenterLabel": "Cost center",
+  "@prFormCostCenterLabel": {"description": "PR form field label"},
+  "prFormApproverLabel": "Approver",
+  "@prFormApproverLabel": {"description": "PR form field label"},
+  "prFormJustificationLabel": "Justification (optional)",
+  "@prFormJustificationLabel": {"description": "PR form field label"},
+  "prFormLinesHeading": "Line items",
+  "@prFormLinesHeading": {"description": "PR form lines section heading"},
+  "prFormLineHeading": "Line {index}",
+  "@prFormLineHeading": {
+    "description": "Per-line numbered heading inside the PR form",
+    "placeholders": {"index": {"type": "int"}}
+  },
+  "prFormAddLineAction": "Add line",
+  "@prFormAddLineAction": {"description": "PR form add-line button"},
+  "prFormRemoveLineTooltip": "Remove line",
+  "@prFormRemoveLineTooltip": {"description": "PR form remove-line tooltip"},
+  "prFormLineDescriptionLabel": "Description",
+  "@prFormLineDescriptionLabel": {"description": "PR line field label"},
+  "prFormLineQuantityLabel": "Qty",
+  "@prFormLineQuantityLabel": {"description": "PR line field label"},
+  "prFormLineUnitPriceLabel": "Unit price",
+  "@prFormLineUnitPriceLabel": {"description": "PR line field label"},
+
+  "prDetailTitle": "Purchase request",
+  "@prDetailTitle": {"description": "Slice 4.1.3 detail AppBar title"},
+  "prDetailNotFound": "We couldn't find a purchase request with id \"{prId}\".",
+  "@prDetailNotFound": {
+    "description": "Not-found body on PR detail",
+    "placeholders": {"prId": {"type": "String"}}
+  },
+  "prDetailError": "Couldn't load this purchase request: {message}",
+  "@prDetailError": {
+    "description": "Failure body on PR detail",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "prDetailRequesterLabel": "Requester",
+  "@prDetailRequesterLabel": {"description": "PR detail meta label"},
+  "prDetailCostCenterLabel": "Cost center",
+  "@prDetailCostCenterLabel": {"description": "PR detail meta label"},
+  "prDetailApproverLabel": "Approver",
+  "@prDetailApproverLabel": {"description": "PR detail meta label"},
+  "prDetailCreatedLabel": "Created",
+  "@prDetailCreatedLabel": {"description": "PR detail meta label"},
+  "prDetailJustificationHeading": "Justification",
+  "@prDetailJustificationHeading": {"description": "PR detail section heading"},
+  "prDetailLinesHeading": "Line items",
+  "@prDetailLinesHeading": {"description": "PR detail section heading"},
+  "prDetailTotalLabel": "Total",
+  "@prDetailTotalLabel": {"description": "PR detail total row label"},
+
+  "prApproveAction": "Approve",
+  "@prApproveAction": {"description": "PR detail action"},
+  "prRejectAction": "Reject",
+  "@prRejectAction": {"description": "PR detail action"},
+  "prSubmitAction": "Submit",
+  "@prSubmitAction": {"description": "PR detail action — draft → submitted"},
+  "prConvertAction": "Convert to PO",
+  "@prConvertAction": {"description": "PR detail action — approved → PO"},
+  "prSubmittedSnack": "Purchase request submitted.",
+  "@prSubmittedSnack": {"description": "Snackbar after PR submit"},
+  "prApprovedSnack": "Purchase request marked as {status}.",
+  "@prApprovedSnack": {
+    "description": "Snackbar after PR approval",
+    "placeholders": {"status": {"type": "String"}}
+  },
+  "prRejectedSnack": "Purchase request rejected.",
+  "@prRejectedSnack": {"description": "Snackbar after PR reject"},
+  "prConvertedSnack": "Purchase order created.",
+  "@prConvertedSnack": {"description": "Snackbar after PR→PO convert"},
+  "prApprovalNotAllowed": "This request can't be {action} from its current status.",
+  "@prApprovalNotAllowed": {
+    "description": "Snackbar when transition is illegal",
+    "placeholders": {"action": {"type": "String"}}
+  },
+  "prApprovalFailed": "Couldn't update the request: {message}",
+  "@prApprovalFailed": {
+    "description": "Snackbar after persistence failure",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "prRejectDialogTitle": "Reject request",
+  "@prRejectDialogTitle": {"description": "Reject dialog title"},
+  "prRejectReasonLabel": "Reason",
+  "@prRejectReasonLabel": {"description": "Reject dialog field label"},
+  "prRejectReasonHint": "Why is this request being rejected?",
+  "@prRejectReasonHint": {"description": "Reject dialog field hint"},
+  "prRejectReasonRequired": "Please give a reason.",
+  "@prRejectReasonRequired": {"description": "Reject dialog validation"},
+  "prRejectCancel": "Cancel",
+  "@prRejectCancel": {"description": "Reject dialog cancel"},
+  "prRejectConfirm": "Reject request",
+  "@prRejectConfirm": {"description": "Reject dialog confirm"},
+  "prConvertDialogTitle": "Convert to purchase order",
+  "@prConvertDialogTitle": {"description": "Convert dialog title"},
+  "prConvertVendorLabel": "Vendor",
+  "@prConvertVendorLabel": {"description": "Convert dialog vendor field"},
+  "prConvertExpectedLabel": "Expected delivery",
+  "@prConvertExpectedLabel": {"description": "Convert dialog date field"},
+  "prConvertVendorRequired": "Please pick a vendor.",
+  "@prConvertVendorRequired": {"description": "Convert dialog validation"},
+  "prConvertConfirm": "Create PO",
+  "@prConvertConfirm": {"description": "Convert dialog confirm"},
+  "prConvertCancel": "Cancel",
+  "@prConvertCancel": {"description": "Convert dialog cancel"},
+
+  "poListTitle": "Purchase orders",
+  "@poListTitle": {"description": "Slice 4.2.1 list AppBar title"},
+  "poListEmpty": "No purchase orders yet.",
+  "@poListEmpty": {"description": "PO list empty state"},
+  "poListExpectedLabel": "expected {date}",
+  "@poListExpectedLabel": {
+    "description": "PO list subtitle",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "poStatusOpen": "Open",
+  "@poStatusOpen": {"description": "PO status label"},
+  "poStatusPartial": "Partial",
+  "@poStatusPartial": {"description": "PO status label"},
+  "poStatusFull": "Received",
+  "@poStatusFull": {"description": "PO status label"},
+  "poStatusClosed": "Closed",
+  "@poStatusClosed": {"description": "PO status label"},
+  "poStatusCancelled": "Cancelled",
+  "@poStatusCancelled": {"description": "PO status label"},
+
+  "poDetailTitle": "Purchase order",
+  "@poDetailTitle": {"description": "PO detail AppBar title"},
+  "poDetailNotFound": "We couldn't find a purchase order with id \"{poId}\".",
+  "@poDetailNotFound": {
+    "description": "PO not-found body",
+    "placeholders": {"poId": {"type": "String"}}
+  },
+  "poDetailCreatedLabel": "Created",
+  "@poDetailCreatedLabel": {"description": "PO detail meta label"},
+  "poDetailExpectedLabel": "Expected",
+  "@poDetailExpectedLabel": {"description": "PO detail meta label"},
+  "poDetailSourcePrLabel": "Source PR",
+  "@poDetailSourcePrLabel": {"description": "PO detail meta label"},
+  "poDetailLinesHeading": "Line items",
+  "@poDetailLinesHeading": {"description": "PO detail section heading"},
+  "poDetailTotalLabel": "Total",
+  "@poDetailTotalLabel": {"description": "PO detail total row"},
+  "poDetailReceiptsHeading": "Goods receipts",
+  "@poDetailReceiptsHeading": {"description": "PO detail receipts section heading"},
+  "poDetailReceiptsEmpty": "No receipts recorded yet.",
+  "@poDetailReceiptsEmpty": {"description": "PO detail empty receipts message"},
+  "poDetailReceiptItemsBadge": "{count} item(s)",
+  "@poDetailReceiptItemsBadge": {
+    "description": "Badge showing how many lines a receipt covered",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "poDetailRecordReceiptAction": "Record goods receipt",
+  "@poDetailRecordReceiptAction": {"description": "PO detail bottom action"},
+  "poLineOrderedLabel": "ordered {qty}",
+  "@poLineOrderedLabel": {
+    "description": "PO line meta",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+  "poLineReceivedLabel": "received {qty}",
+  "@poLineReceivedLabel": {
+    "description": "PO line meta",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+  "poLineOutstandingLabel": "outstanding {qty}",
+  "@poLineOutstandingLabel": {
+    "description": "PO line meta",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+
+  "goodsReceiptFormTitle": "Goods receipt",
+  "@goodsReceiptFormTitle": {"description": "Slice 4.2.3 form title"},
+  "goodsReceiptFormForPo": "Receiving against {number}",
+  "@goodsReceiptFormForPo": {
+    "description": "GR form subtitle",
+    "placeholders": {"number": {"type": "String"}}
+  },
+  "goodsReceiptReceivedByLabel": "Received by",
+  "@goodsReceiptReceivedByLabel": {"description": "GR form field"},
+  "goodsReceiptNoteLabel": "Note (optional)",
+  "@goodsReceiptNoteLabel": {"description": "GR form field"},
+  "goodsReceiptLinesHeading": "Quantities received",
+  "@goodsReceiptLinesHeading": {"description": "GR form section heading"},
+  "goodsReceiptQuantityLabel": "Receiving now",
+  "@goodsReceiptQuantityLabel": {"description": "GR form per-line input"},
+  "goodsReceiptSubmitAction": "Record receipt",
+  "@goodsReceiptSubmitAction": {"description": "GR form submit"},
+  "goodsReceiptSavedSnack": "Goods receipt recorded.",
+  "@goodsReceiptSavedSnack": {"description": "GR snackbar"},
+  "goodsReceiptSaveFailed": "Couldn't record receipt: {message}",
+  "@goodsReceiptSaveFailed": {
+    "description": "GR failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "goodsReceiptErrorPoClosed": "This PO is closed and can't take more receipts.",
+  "@goodsReceiptErrorPoClosed": {"description": "GR validator error"},
+  "goodsReceiptErrorNoLines": "Enter a quantity for at least one line.",
+  "@goodsReceiptErrorNoLines": {"description": "GR validator error"},
+  "goodsReceiptErrorNonPositive": "Quantity must be greater than 0.",
+  "@goodsReceiptErrorNonPositive": {"description": "GR validator error"},
+  "goodsReceiptErrorUnknownLine": "One of the lines doesn't belong to this PO.",
+  "@goodsReceiptErrorUnknownLine": {"description": "GR validator error"},
+  "goodsReceiptErrorExceedsOutstanding": "You can't receive more than the outstanding quantity.",
+  "@goodsReceiptErrorExceedsOutstanding": {"description": "GR validator error"},
+
+  "vendorListTitle": "Vendors",
+  "@vendorListTitle": {"description": "Slice 4.3.1 list AppBar title"},
+  "vendorListEmpty": "No vendors onboarded yet.",
+  "@vendorListEmpty": {"description": "Vendor list empty state"},
+  "vendorListNewTooltip": "Onboard vendor",
+  "@vendorListNewTooltip": {"description": "AppBar add tooltip"},
+  "vendorStatusActive": "Active",
+  "@vendorStatusActive": {"description": "Vendor status label"},
+  "vendorStatusOnHold": "On hold",
+  "@vendorStatusOnHold": {"description": "Vendor status label"},
+  "vendorStatusArchived": "Archived",
+  "@vendorStatusArchived": {"description": "Vendor status label"},
+
+  "vendorDetailTitle": "Vendor",
+  "@vendorDetailTitle": {"description": "Vendor detail AppBar title"},
+  "vendorDetailNotFound": "We couldn't find a vendor with id \"{vendorId}\".",
+  "@vendorDetailNotFound": {
+    "description": "Vendor not-found body",
+    "placeholders": {"vendorId": {"type": "String"}}
+  },
+  "vendorDetailTaxIdLabel": "Tax ID",
+  "@vendorDetailTaxIdLabel": {"description": "Vendor detail meta"},
+  "vendorDetailOnboardedLabel": "Onboarded",
+  "@vendorDetailOnboardedLabel": {"description": "Vendor detail meta"},
+  "vendorDetailContactHeading": "Contact",
+  "@vendorDetailContactHeading": {"description": "Vendor detail section"},
+  "vendorDetailContactPersonLabel": "Contact person",
+  "@vendorDetailContactPersonLabel": {"description": "Vendor detail field"},
+  "vendorDetailEmailLabel": "Email",
+  "@vendorDetailEmailLabel": {"description": "Vendor detail field"},
+  "vendorDetailPhoneLabel": "Phone",
+  "@vendorDetailPhoneLabel": {"description": "Vendor detail field"},
+  "vendorDetailAddressLabel": "Address",
+  "@vendorDetailAddressLabel": {"description": "Vendor detail field"},
+  "vendorDetailNotesHeading": "Notes",
+  "@vendorDetailNotesHeading": {"description": "Vendor detail section"},
+  "vendorDetailScorecardAction": "View performance scorecard",
+  "@vendorDetailScorecardAction": {"description": "Vendor detail link to 4.3.3"},
+
+  "vendorFormTitle": "Onboard vendor",
+  "@vendorFormTitle": {"description": "Slice 4.3.2 form title"},
+  "vendorFormSaveTooltip": "Save",
+  "@vendorFormSaveTooltip": {"description": "Vendor form save tooltip"},
+  "vendorFormSaveAction": "Save vendor",
+  "@vendorFormSaveAction": {"description": "Vendor form bottom save button"},
+  "vendorFormSavedSnack": "Vendor onboarded.",
+  "@vendorFormSavedSnack": {"description": "Vendor save snackbar"},
+  "vendorFormSaveFailed": "Couldn't save the vendor: {message}",
+  "@vendorFormSaveFailed": {
+    "description": "Vendor save failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "vendorFormNameLabel": "Vendor name",
+  "@vendorFormNameLabel": {"description": "Vendor form field"},
+  "vendorFormTaxIdLabel": "Tax ID",
+  "@vendorFormTaxIdLabel": {"description": "Vendor form field"},
+  "vendorFormEmailLabel": "Email",
+  "@vendorFormEmailLabel": {"description": "Vendor form field"},
+  "vendorFormPhoneLabel": "Phone",
+  "@vendorFormPhoneLabel": {"description": "Vendor form field"},
+  "vendorFormAddressLabel": "Address",
+  "@vendorFormAddressLabel": {"description": "Vendor form field"},
+  "vendorFormContactPersonLabel": "Contact person (optional)",
+  "@vendorFormContactPersonLabel": {"description": "Vendor form field"},
+  "vendorFormNotesLabel": "Notes (optional)",
+  "@vendorFormNotesLabel": {"description": "Vendor form field"},
+
+  "vendorScorecardTitle": "Vendor scorecard",
+  "@vendorScorecardTitle": {"description": "Slice 4.3.3 page title"},
+  "vendorScorecardCompositeLabel": "Composite score",
+  "@vendorScorecardCompositeLabel": {"description": "Composite section label"},
+  "vendorScorecardOnTimeLabel": "On-time delivery",
+  "@vendorScorecardOnTimeLabel": {"description": "Metric label"},
+  "vendorScorecardDefectLabel": "Defect rate",
+  "@vendorScorecardDefectLabel": {"description": "Metric label"},
+  "vendorScorecardDisputesLabel": "Open disputes",
+  "@vendorScorecardDisputesLabel": {"description": "Metric label"},
+  "vendorScorecardSpendLabel": "Total spend",
+  "@vendorScorecardSpendLabel": {"description": "Metric label"},
+
+  "inventoryItemsTitle": "Inventory items",
+  "@inventoryItemsTitle": {"description": "Slice 5.1.1 list AppBar title"},
+  "inventoryScanTooltip": "Scan barcode",
+  "@inventoryScanTooltip": {"description": "AppBar scan button tooltip"},
+  "inventoryLowStockAlertsTooltip": "Low stock alerts",
+  "@inventoryLowStockAlertsTooltip": {"description": "AppBar alerts button tooltip"},
+  "inventoryItemsSearchHint": "Search by SKU, name, location, barcode",
+  "@inventoryItemsSearchHint": {"description": "Items list search hint"},
+  "inventoryItemsSortTooltip": "Sort",
+  "@inventoryItemsSortTooltip": {"description": "Items list sort tooltip"},
+  "inventoryItemsEmpty": "No items match the current filters.",
+  "@inventoryItemsEmpty": {"description": "Items list empty state"},
+  "inventoryItemsError": "Couldn't load inventory: {message}",
+  "@inventoryItemsError": {
+    "description": "Items list failure body",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "inventoryItemsOnHand": "on-hand {qty}",
+  "@inventoryItemsOnHand": {
+    "description": "Items list trailing — current on-hand",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+  "inventoryReorderBadge": "reorder at {qty}",
+  "@inventoryReorderBadge": {
+    "description": "Badge under on-hand when item is at/below reorder",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+  "inventoryLowStockChip": "Low stock only",
+  "@inventoryLowStockChip": {"description": "Filter chip — low-stock only"},
+  "inventorySortNameAsc": "Name (A–Z)",
+  "@inventorySortNameAsc": {"description": "Sort axis"},
+  "inventorySortSkuAsc": "SKU",
+  "@inventorySortSkuAsc": {"description": "Sort axis"},
+  "inventorySortOnHandAsc": "On-hand (low first)",
+  "@inventorySortOnHandAsc": {"description": "Sort axis"},
+  "inventorySortOnHandDesc": "On-hand (high first)",
+  "@inventorySortOnHandDesc": {"description": "Sort axis"},
+
+  "inventoryItemDetailTitle": "Item",
+  "@inventoryItemDetailTitle": {"description": "Slice 5.1.2 detail AppBar title"},
+  "inventoryItemNotFound": "We couldn't find an item with id \"{itemId}\".",
+  "@inventoryItemNotFound": {
+    "description": "Detail not-found body",
+    "placeholders": {"itemId": {"type": "String"}}
+  },
+  "inventoryDetailWarehouseLabel": "Warehouse",
+  "@inventoryDetailWarehouseLabel": {"description": "Detail meta label"},
+  "inventoryDetailLocationLabel": "Location",
+  "@inventoryDetailLocationLabel": {"description": "Detail meta label"},
+  "inventoryDetailReorderLabel": "Reorder point",
+  "@inventoryDetailReorderLabel": {"description": "Detail meta label"},
+  "inventoryDetailUnitCostLabel": "Unit cost",
+  "@inventoryDetailUnitCostLabel": {"description": "Detail meta label"},
+  "inventoryDetailBarcodeLabel": "Barcode",
+  "@inventoryDetailBarcodeLabel": {"description": "Detail meta label"},
+  "inventoryDetailMovementsHeading": "Movement history",
+  "@inventoryDetailMovementsHeading": {"description": "Detail section heading"},
+  "inventoryDetailMovementsEmpty": "No movements recorded yet.",
+  "@inventoryDetailMovementsEmpty": {"description": "Detail empty ledger"},
+
+  "inventoryMovementTypeReceipt": "Goods receipt",
+  "@inventoryMovementTypeReceipt": {"description": "Ledger row label"},
+  "inventoryMovementTypeIssue": "Goods issue",
+  "@inventoryMovementTypeIssue": {"description": "Ledger row label"},
+  "inventoryMovementTypeTransfer": "Transfer",
+  "@inventoryMovementTypeTransfer": {"description": "Ledger row label"},
+  "inventoryMovementTypeAdjustment": "Adjustment",
+  "@inventoryMovementTypeAdjustment": {"description": "Ledger row label"},
+  "inventoryMovementRunningLabel": "balance {qty}",
+  "@inventoryMovementRunningLabel": {
+    "description": "Trailing running-balance on a ledger row",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+
+  "inventoryIssueAction": "Issue",
+  "@inventoryIssueAction": {"description": "Detail bottom-bar action"},
+  "inventoryReceiptAction": "Receive",
+  "@inventoryReceiptAction": {"description": "Detail bottom-bar action"},
+  "inventoryTransferAction": "Transfer",
+  "@inventoryTransferAction": {"description": "Detail bottom-bar action"},
+
+  "inventoryLowStockTitle": "Low stock",
+  "@inventoryLowStockTitle": {"description": "Slice 5.1.3 alerts page title"},
+  "inventoryLowStockEmpty": "Every item is above its reorder point.",
+  "@inventoryLowStockEmpty": {"description": "Alerts empty state"},
+
+  "inventoryScannerTitle": "Scan barcode",
+  "@inventoryScannerTitle": {"description": "Slice 5.2.1 scanner title"},
+  "inventoryScannerEmpty": "Scan or enter a code.",
+  "@inventoryScannerEmpty": {"description": "Inline error when scan/entry is empty"},
+  "inventoryScannerUnknown": "No item matches \"{code}\".",
+  "@inventoryScannerUnknown": {
+    "description": "Inline error when barcode resolves to nothing",
+    "placeholders": {"code": {"type": "String"}}
+  },
+  "inventoryScannerError": "Scanner error: {message}",
+  "@inventoryScannerError": {
+    "description": "Snackbar for scanner exceptions",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "inventoryScannerNoCamera": "Camera not available on this platform — use manual entry below.",
+  "@inventoryScannerNoCamera": {"description": "Shown on web/desktop instead of the camera preview"},
+  "inventoryScannerManualHeading": "Manual entry",
+  "@inventoryScannerManualHeading": {"description": "Heading for the manual entry section"},
+  "inventoryScannerManualLabel": "Barcode",
+  "@inventoryScannerManualLabel": {"description": "Manual entry field label"},
+  "inventoryScannerManualHint": "Type or paste a code",
+  "@inventoryScannerManualHint": {"description": "Manual entry field hint"},
+  "inventoryScannerManualUseAction": "Use",
+  "@inventoryScannerManualUseAction": {"description": "Manual entry submit button"},
+  "inventoryScannerBrowseFallback": "Browse the catalog instead",
+  "@inventoryScannerBrowseFallback": {"description": "Fallback link to the catalog list"},
+
+  "inventoryReceiptFormTitle": "Receive stock",
+  "@inventoryReceiptFormTitle": {"description": "Slice 5.2.2 GR form title"},
+  "inventoryIssueFormTitle": "Issue stock",
+  "@inventoryIssueFormTitle": {"description": "Slice 5.2.2 GI form title"},
+  "inventoryReceiptSuccessSnack": "Stock received.",
+  "@inventoryReceiptSuccessSnack": {"description": "GR success snackbar"},
+  "inventoryIssueSuccessSnack": "Stock issued.",
+  "@inventoryIssueSuccessSnack": {"description": "GI success snackbar"},
+  "inventoryMovementGenericSuccess": "Movement recorded.",
+  "@inventoryMovementGenericSuccess": {"description": "Fallback success snackbar"},
+  "inventoryMovementFailed": "Couldn't record movement: {message}",
+  "@inventoryMovementFailed": {
+    "description": "Failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "inventoryFormCurrentOnHand": "Current on-hand: {qty}",
+  "@inventoryFormCurrentOnHand": {
+    "description": "Form header showing current quantity",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+  "inventoryFormQuantityLabel": "Quantity",
+  "@inventoryFormQuantityLabel": {"description": "Form field"},
+  "inventoryFormReferenceLabel": "Reference (optional)",
+  "@inventoryFormReferenceLabel": {"description": "Form field"},
+  "inventoryFormReferenceReceiptHint": "e.g. PO-2026-001",
+  "@inventoryFormReferenceReceiptHint": {"description": "Form hint"},
+  "inventoryFormReferenceIssueHint": "e.g. SO-2026-014",
+  "@inventoryFormReferenceIssueHint": {"description": "Form hint"},
+  "inventoryFormNoteLabel": "Note",
+  "@inventoryFormNoteLabel": {"description": "Form field"},
+  "inventoryQtyExceedsOnHand": "Quantity exceeds the current on-hand.",
+  "@inventoryQtyExceedsOnHand": {"description": "Inline error when issue qty > on-hand"},
+
+  "inventoryTransferFormTitle": "Transfer stock",
+  "@inventoryTransferFormTitle": {"description": "Slice 5.2.3 transfer form title"},
+  "inventoryTransferSourceHeading": "From",
+  "@inventoryTransferSourceHeading": {"description": "Source card heading"},
+  "inventoryTransferDestinationLabel": "Destination bin",
+  "@inventoryTransferDestinationLabel": {"description": "Destination dropdown label"},
+  "inventoryTransferNoDestinations": "No active destination bins available for this SKU.",
+  "@inventoryTransferNoDestinations": {"description": "Empty destinations message"},
+  "inventoryTransferReferenceHint": "Internal transfer note",
+  "@inventoryTransferReferenceHint": {"description": "Transfer reference hint"},
+  "inventoryTransferPickDestination": "Please pick a destination bin.",
+  "@inventoryTransferPickDestination": {"description": "Snackbar when destination missing"},
+  "inventoryTransferSuccess": "Stock transferred.",
+  "@inventoryTransferSuccess": {"description": "Transfer success snackbar"},
+
+  "inventoryCycleCountTitle": "Cycle count",
+  "@inventoryCycleCountTitle": {"description": "Slice 5.2.4 cycle count title"},
+  "inventoryCycleNoItems": "No items to count.",
+  "@inventoryCycleNoItems": {"description": "Empty state"},
+  "inventoryCycleAllWarehouses": "All warehouses",
+  "@inventoryCycleAllWarehouses": {"description": "Filter chip — no warehouse filter"},
+  "inventoryCycleExpectedLabel": "expected {qty}",
+  "@inventoryCycleExpectedLabel": {
+    "description": "Per-line expected qty",
+    "placeholders": {"qty": {"type": "String"}}
+  },
+  "inventoryCycleCountedLabel": "Counted",
+  "@inventoryCycleCountedLabel": {"description": "Per-line counted qty input"},
+  "inventoryCycleEmpty": "Enter a counted quantity for at least one item.",
+  "@inventoryCycleEmpty": {"description": "Snackbar when no lines"},
+  "inventoryCycleSubmitAction": "Submit count",
+  "@inventoryCycleSubmitAction": {"description": "Cycle count bottom action"},
+  "inventoryCycleSuccess": "Posted {count} adjustment(s); variance {variance}.",
+  "@inventoryCycleSuccess": {
+    "description": "Cycle count success snackbar",
+    "placeholders": {
+      "count": {"type": "int"},
+      "variance": {"type": "String"}
+    }
+  },
+
+  "salesCustomersTitle": "Customers",
+  "@salesCustomersTitle": {"description": "Slice 6.1.1 list AppBar title"},
+  "salesAnalyticsTooltip": "Analytics",
+  "@salesAnalyticsTooltip": {"description": "AppBar analytics button tooltip"},
+  "salesCustomersSearchHint": "Search by name, email, industry",
+  "@salesCustomersSearchHint": {"description": "Customer list search hint"},
+  "salesCustomersSortTooltip": "Sort",
+  "@salesCustomersSortTooltip": {"description": "Customer list sort tooltip"},
+  "salesCustomersEmpty": "No customers match your filters.",
+  "@salesCustomersEmpty": {"description": "Customer list empty state"},
+  "salesCustomersError": "Couldn't load customers: {message}",
+  "@salesCustomersError": {
+    "description": "Customer list failure body",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "salesCustomersOnboardedLabel": "since {date}",
+  "@salesCustomersOnboardedLabel": {
+    "description": "Subtitle date label",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "salesCustomersSortName": "Name (A–Z)",
+  "@salesCustomersSortName": {"description": "Sort axis"},
+  "salesCustomersSortLtv": "Lifetime value",
+  "@salesCustomersSortLtv": {"description": "Sort axis"},
+  "salesCustomersSortRecent": "Recently added",
+  "@salesCustomersSortRecent": {"description": "Sort axis"},
+  "salesStatusProspect": "Prospect",
+  "@salesStatusProspect": {"description": "Customer status"},
+  "salesStatusActive": "Active",
+  "@salesStatusActive": {"description": "Customer status"},
+  "salesStatusOnHold": "On hold",
+  "@salesStatusOnHold": {"description": "Customer status"},
+  "salesStatusChurned": "Churned",
+  "@salesStatusChurned": {"description": "Customer status"},
+  "salesSegmentSmb": "SMB",
+  "@salesSegmentSmb": {"description": "Customer segment"},
+  "salesSegmentMidMarket": "Mid-market",
+  "@salesSegmentMidMarket": {"description": "Customer segment"},
+  "salesSegmentEnterprise": "Enterprise",
+  "@salesSegmentEnterprise": {"description": "Customer segment"},
+
+  "salesCustomerDetailTitle": "Customer",
+  "@salesCustomerDetailTitle": {"description": "Slice 6.1 detail AppBar title"},
+  "salesCustomerNotFound": "We couldn't find a customer with id \"{customerId}\".",
+  "@salesCustomerNotFound": {
+    "description": "Detail not-found body",
+    "placeholders": {"customerId": {"type": "String"}}
+  },
+  "salesCustomerDetailEmailLabel": "Email",
+  "@salesCustomerDetailEmailLabel": {"description": "Detail meta label"},
+  "salesCustomerDetailPhoneLabel": "Phone",
+  "@salesCustomerDetailPhoneLabel": {"description": "Detail meta label"},
+  "salesCustomerDetailAddressLabel": "Billing address",
+  "@salesCustomerDetailAddressLabel": {"description": "Detail meta label"},
+  "salesCustomerDetailLifetimeValueLabel": "Lifetime value",
+  "@salesCustomerDetailLifetimeValueLabel": {"description": "Detail chip label"},
+  "salesCustomerDetailSinceLabel": "Customer since",
+  "@salesCustomerDetailSinceLabel": {"description": "Detail chip label"},
+  "salesCustomerDetailNotesHeading": "Notes",
+  "@salesCustomerDetailNotesHeading": {"description": "Detail notes heading"},
+  "salesCustomerDetailContactsHeading": "Contacts",
+  "@salesCustomerDetailContactsHeading": {"description": "Contacts card heading"},
+  "salesCustomerDetailContactsEmpty": "No contacts linked yet.",
+  "@salesCustomerDetailContactsEmpty": {"description": "Contacts empty state"},
+  "salesCustomerDetailTimelineHeading": "Activity",
+  "@salesCustomerDetailTimelineHeading": {"description": "Timeline card heading"},
+  "salesCustomerDetailTimelineEmpty": "No activity yet.",
+  "@salesCustomerDetailTimelineEmpty": {"description": "Timeline empty state"},
+
+  "salesContactAddAction": "Add contact",
+  "@salesContactAddAction": {"description": "Contacts card add button"},
+  "salesContactEditAction": "Edit",
+  "@salesContactEditAction": {"description": "Contact tile menu"},
+  "salesContactDeleteAction": "Delete",
+  "@salesContactDeleteAction": {"description": "Contact tile menu"},
+  "salesContactPrimaryBadge": "Primary",
+  "@salesContactPrimaryBadge": {"description": "Badge on the primary contact tile"},
+  "salesContactNewTitle": "New contact",
+  "@salesContactNewTitle": {"description": "Contact form title (create)"},
+  "salesContactEditTitle": "Edit contact",
+  "@salesContactEditTitle": {"description": "Contact form title (edit)"},
+  "salesContactNameLabel": "Name",
+  "@salesContactNameLabel": {"description": "Contact form field"},
+  "salesContactRoleLabel": "Role",
+  "@salesContactRoleLabel": {"description": "Contact form field"},
+  "salesContactEmailLabel": "Email",
+  "@salesContactEmailLabel": {"description": "Contact form field"},
+  "salesContactPhoneLabel": "Phone",
+  "@salesContactPhoneLabel": {"description": "Contact form field"},
+  "salesContactPrimaryToggle": "Primary contact",
+  "@salesContactPrimaryToggle": {"description": "Toggle label"},
+  "salesContactPrimaryDescription": "Show this contact in the customer header.",
+  "@salesContactPrimaryDescription": {"description": "Toggle description"},
+  "salesContactSaveAction": "Save contact",
+  "@salesContactSaveAction": {"description": "Form submit"},
+  "salesContactSavedSnack": "Contact saved.",
+  "@salesContactSavedSnack": {"description": "Save success snackbar"},
+  "salesContactSaveFailed": "Couldn't save contact: {message}",
+  "@salesContactSaveFailed": {
+    "description": "Save failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "salesContactDeleteTitle": "Delete contact?",
+  "@salesContactDeleteTitle": {"description": "Confirmation dialog title"},
+  "salesContactDeleteBody": "The contact will be removed from this customer.",
+  "@salesContactDeleteBody": {"description": "Confirmation dialog body"},
+  "salesContactDeleteConfirm": "Delete",
+  "@salesContactDeleteConfirm": {"description": "Confirmation confirm button"},
+  "salesContactDeletedSnack": "Contact removed.",
+  "@salesContactDeletedSnack": {"description": "Delete success snackbar"},
+
+  "salesActivityLogAction": "Log activity",
+  "@salesActivityLogAction": {"description": "Timeline card add button"},
+  "salesActivityFormTitle": "Log activity",
+  "@salesActivityFormTitle": {"description": "Activity form AppBar title"},
+  "salesActivityTypeLabel": "Type",
+  "@salesActivityTypeLabel": {"description": "Activity form field"},
+  "salesActivitySummaryLabel": "Summary",
+  "@salesActivitySummaryLabel": {"description": "Activity form field"},
+  "salesActivityActorLabel": "Logged by",
+  "@salesActivityActorLabel": {"description": "Activity form field"},
+  "salesActivitySaveAction": "Save activity",
+  "@salesActivitySaveAction": {"description": "Activity form submit"},
+  "salesActivitySavedSnack": "Activity logged.",
+  "@salesActivitySavedSnack": {"description": "Save success snackbar"},
+  "salesActivitySaveFailed": "Couldn't log activity: {message}",
+  "@salesActivitySaveFailed": {
+    "description": "Save failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "salesActivityTypeNote": "Note",
+  "@salesActivityTypeNote": {"description": "Activity type label"},
+  "salesActivityTypeCall": "Call",
+  "@salesActivityTypeCall": {"description": "Activity type label"},
+  "salesActivityTypeMeeting": "Meeting",
+  "@salesActivityTypeMeeting": {"description": "Activity type label"},
+  "salesActivityTypeEmail": "Email",
+  "@salesActivityTypeEmail": {"description": "Activity type label"},
+  "salesActivityTypeQuotation": "Quotation",
+  "@salesActivityTypeQuotation": {"description": "Activity type label"},
+  "salesActivityTypeOrder": "Order",
+  "@salesActivityTypeOrder": {"description": "Activity type label"},
+  "salesActivityTypePayment": "Payment",
+  "@salesActivityTypePayment": {"description": "Activity type label"},
+
+  "salesQuotationListTitle": "Quotations",
+  "@salesQuotationListTitle": {"description": "Slice 6.2.1 list title"},
+  "salesQuotationNewTooltip": "New quotation",
+  "@salesQuotationNewTooltip": {"description": "AppBar add tooltip"},
+  "salesQuotationSearchHint": "Search by number or customer",
+  "@salesQuotationSearchHint": {"description": "Quotation list search hint"},
+  "salesQuotationSortTooltip": "Sort",
+  "@salesQuotationSortTooltip": {"description": "Quotation list sort tooltip"},
+  "salesQuotationListEmpty": "No quotations match your filters.",
+  "@salesQuotationListEmpty": {"description": "Quotation list empty state"},
+  "salesQuotationValidUntilLabel": "valid until {date}",
+  "@salesQuotationValidUntilLabel": {
+    "description": "Tile subtitle validity label",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "salesQuotationSortCreatedDesc": "Created (newest)",
+  "@salesQuotationSortCreatedDesc": {"description": "Sort axis"},
+  "salesQuotationSortCreatedAsc": "Created (oldest)",
+  "@salesQuotationSortCreatedAsc": {"description": "Sort axis"},
+  "salesQuotationSortTotalDesc": "Total (largest)",
+  "@salesQuotationSortTotalDesc": {"description": "Sort axis"},
+  "salesQuotationSortValidity": "Expiring next",
+  "@salesQuotationSortValidity": {"description": "Sort axis"},
+  "salesQuotationStatusDraft": "Draft",
+  "@salesQuotationStatusDraft": {"description": "Quotation status"},
+  "salesQuotationStatusSent": "Sent",
+  "@salesQuotationStatusSent": {"description": "Quotation status"},
+  "salesQuotationStatusAccepted": "Accepted",
+  "@salesQuotationStatusAccepted": {"description": "Quotation status"},
+  "salesQuotationStatusRejected": "Rejected",
+  "@salesQuotationStatusRejected": {"description": "Quotation status"},
+  "salesQuotationStatusExpired": "Expired",
+  "@salesQuotationStatusExpired": {"description": "Quotation status"},
+  "salesQuotationStatusConverted": "Converted",
+  "@salesQuotationStatusConverted": {"description": "Quotation status — promoted to a sales order"},
+
+  "salesQuotationNewTitle": "New quotation",
+  "@salesQuotationNewTitle": {"description": "Quotation form AppBar title"},
+  "salesQuotationCustomerLabel": "Customer",
+  "@salesQuotationCustomerLabel": {"description": "Form field"},
+  "salesQuotationValidUntilField": "Valid until",
+  "@salesQuotationValidUntilField": {"description": "Form field"},
+  "salesQuotationLinesHeading": "Line items",
+  "@salesQuotationLinesHeading": {"description": "Form section heading"},
+  "salesQuotationLineHeading": "Line {index}",
+  "@salesQuotationLineHeading": {
+    "description": "Numbered per-line heading",
+    "placeholders": {"index": {"type": "int"}}
+  },
+  "salesQuotationAddLineAction": "Add line",
+  "@salesQuotationAddLineAction": {"description": "Form add-line button"},
+  "salesQuotationRemoveLineTooltip": "Remove line",
+  "@salesQuotationRemoveLineTooltip": {"description": "Form remove-line tooltip"},
+  "salesQuotationLineDescriptionLabel": "Description",
+  "@salesQuotationLineDescriptionLabel": {"description": "Line field"},
+  "salesQuotationLineQuantityLabel": "Qty",
+  "@salesQuotationLineQuantityLabel": {"description": "Line field"},
+  "salesQuotationLineUnitPriceLabel": "Unit price",
+  "@salesQuotationLineUnitPriceLabel": {"description": "Line field"},
+  "salesQuotationSaveAction": "Save quotation",
+  "@salesQuotationSaveAction": {"description": "Form submit"},
+  "salesQuotationSavedSnack": "Quotation saved.",
+  "@salesQuotationSavedSnack": {"description": "Save success snackbar"},
+  "salesQuotationSaveFailed": "Couldn't save quotation: {message}",
+  "@salesQuotationSaveFailed": {
+    "description": "Save failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "salesQuotationPickCustomer": "Please pick a customer.",
+  "@salesQuotationPickCustomer": {"description": "Form validation snackbar"},
+
+  "salesQuotationDetailTitle": "Quotation",
+  "@salesQuotationDetailTitle": {"description": "Detail AppBar title"},
+  "salesQuotationNotFound": "We couldn't find a quotation with id \"{quotationId}\".",
+  "@salesQuotationNotFound": {
+    "description": "Detail not-found body",
+    "placeholders": {"quotationId": {"type": "String"}}
+  },
+  "salesQuotationCreatedLabel": "Created",
+  "@salesQuotationCreatedLabel": {"description": "Detail meta"},
+  "salesQuotationValidUntilLabel2": "Valid until",
+  "@salesQuotationValidUntilLabel2": {"description": "Detail meta"},
+  "salesQuotationDetailLinesHeading": "Line items",
+  "@salesQuotationDetailLinesHeading": {"description": "Detail section heading"},
+  "salesQuotationTotalLabel": "Total",
+  "@salesQuotationTotalLabel": {"description": "Detail total row"},
+  "salesQuotationNotesHeading": "Notes",
+  "@salesQuotationNotesHeading": {"description": "Detail notes heading"},
+  "salesQuotationSendAction": "Send to customer",
+  "@salesQuotationSendAction": {"description": "Draft → sent action"},
+  "salesQuotationAcceptAction": "Mark accepted",
+  "@salesQuotationAcceptAction": {"description": "Sent → accepted action"},
+  "salesQuotationRejectAction": "Mark rejected",
+  "@salesQuotationRejectAction": {"description": "Sent → rejected action"},
+  "salesQuotationConvertAction": "Convert to order",
+  "@salesQuotationConvertAction": {"description": "Accepted → converted action"},
+  "salesQuotationStatusUpdated": "Quotation updated.",
+  "@salesQuotationStatusUpdated": {"description": "Status change snackbar"},
+  "salesQuotationConvertedSnack": "Sales order created.",
+  "@salesQuotationConvertedSnack": {"description": "Convert success snackbar"},
+  "salesQuotationActionFailed": "Couldn't update quotation: {message}",
+  "@salesQuotationActionFailed": {
+    "description": "Action failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+  "salesQuotationConvertNotAccepted": "Only accepted quotations can be converted.",
+  "@salesQuotationConvertNotAccepted": {"description": "Convert refusal copy"},
+  "salesQuotationConvertAlready": "This quotation has already been converted.",
+  "@salesQuotationConvertAlready": {"description": "Convert refusal copy"},
+  "salesQuotationConvertExpired": "This quotation has expired.",
+  "@salesQuotationConvertExpired": {"description": "Convert refusal copy"},
+
+  "salesOrderListTitle": "Sales orders",
+  "@salesOrderListTitle": {"description": "Slice 6.2.1 order list title"},
+  "salesOrderListEmpty": "No orders yet.",
+  "@salesOrderListEmpty": {"description": "Order list empty state"},
+  "salesOrderStatusPending": "Pending",
+  "@salesOrderStatusPending": {"description": "Order status"},
+  "salesOrderStatusPacking": "Packing",
+  "@salesOrderStatusPacking": {"description": "Order status"},
+  "salesOrderStatusShipped": "Shipped",
+  "@salesOrderStatusShipped": {"description": "Order status"},
+  "salesOrderStatusDelivered": "Delivered",
+  "@salesOrderStatusDelivered": {"description": "Order status"},
+  "salesOrderStatusCancelled": "Cancelled",
+  "@salesOrderStatusCancelled": {"description": "Order status"},
+
+  "salesOrderDetailTitle": "Sales order",
+  "@salesOrderDetailTitle": {"description": "Order detail AppBar title"},
+  "salesOrderNotFound": "We couldn't find an order with id \"{orderId}\".",
+  "@salesOrderNotFound": {
+    "description": "Detail not-found body",
+    "placeholders": {"orderId": {"type": "String"}}
+  },
+  "salesOrderCreatedLabel": "Created",
+  "@salesOrderCreatedLabel": {"description": "Detail meta"},
+  "salesOrderSourceQuotationLabel": "Source quotation",
+  "@salesOrderSourceQuotationLabel": {"description": "Detail meta"},
+  "salesOrderShippedAtLabel": "Shipped",
+  "@salesOrderShippedAtLabel": {"description": "Detail meta"},
+  "salesOrderDeliveredAtLabel": "Delivered",
+  "@salesOrderDeliveredAtLabel": {"description": "Detail meta"},
+  "salesOrderTrackingLabel": "Tracking",
+  "@salesOrderTrackingLabel": {"description": "Detail meta and tracking dialog label"},
+  "salesOrderDetailLinesHeading": "Line items",
+  "@salesOrderDetailLinesHeading": {"description": "Detail section heading"},
+  "salesOrderCancelAction": "Cancel",
+  "@salesOrderCancelAction": {"description": "Cancellation action"},
+  "salesOrderStartPackingAction": "Start packing",
+  "@salesOrderStartPackingAction": {"description": "pending → packing action"},
+  "salesOrderShipAction": "Ship",
+  "@salesOrderShipAction": {"description": "packing → shipped action"},
+  "salesOrderMarkDeliveredAction": "Mark delivered",
+  "@salesOrderMarkDeliveredAction": {"description": "shipped → delivered action"},
+  "salesOrderTrackingDialogTitle": "Tracking reference",
+  "@salesOrderTrackingDialogTitle": {"description": "Tracking prompt title"},
+  "salesOrderTrackingConfirm": "Confirm",
+  "@salesOrderTrackingConfirm": {"description": "Tracking prompt confirm"},
+  "salesOrderTrackingRequired": "A tracking reference is required to ship.",
+  "@salesOrderTrackingRequired": {"description": "Snackbar when tracking is empty"},
+  "salesOrderAdvancedSnack": "Order marked as {status}.",
+  "@salesOrderAdvancedSnack": {
+    "description": "Advance success snackbar",
+    "placeholders": {"status": {"type": "String"}}
+  },
+  "salesOrderAdvanceFailed": "Couldn't update order: {message}",
+  "@salesOrderAdvanceFailed": {
+    "description": "Advance failure snackbar",
+    "placeholders": {"message": {"type": "String"}}
+  },
+
+  "salesAnalyticsTitle": "Sales analytics",
+  "@salesAnalyticsTitle": {"description": "Slice 6.3 analytics page title"},
+  "salesAnalyticsRevenueHeading": "Revenue",
+  "@salesAnalyticsRevenueHeading": {"description": "Revenue chart heading"},
+  "salesAnalyticsRevenueEmpty": "No revenue in the selected window.",
+  "@salesAnalyticsRevenueEmpty": {"description": "Revenue chart empty state"},
+  "salesAnalyticsPeriodWeekly": "Weekly",
+  "@salesAnalyticsPeriodWeekly": {"description": "Period toggle"},
+  "salesAnalyticsPeriodMonthly": "Monthly",
+  "@salesAnalyticsPeriodMonthly": {"description": "Period toggle"},
+  "salesAnalyticsTopCustomersHeading": "Top customers",
+  "@salesAnalyticsTopCustomersHeading": {"description": "Top customers card heading"},
+  "salesAnalyticsTopCustomersEmpty": "No customer revenue to rank yet.",
+  "@salesAnalyticsTopCustomersEmpty": {"description": "Top customers empty state"},
+  "salesAnalyticsTopProductsHeading": "Top products",
+  "@salesAnalyticsTopProductsHeading": {"description": "Top products card heading"},
+  "salesAnalyticsTopProductsEmpty": "No product revenue to rank yet.",
+  "@salesAnalyticsTopProductsEmpty": {"description": "Top products empty state"},
+  "salesAnalyticsLeaderboardHeading": "Sales rep leaderboard",
+  "@salesAnalyticsLeaderboardHeading": {"description": "Leaderboard card heading"},
+  "salesAnalyticsLeaderboardEmpty": "No reps yet.",
+  "@salesAnalyticsLeaderboardEmpty": {"description": "Leaderboard empty state"},
+  "salesAnalyticsLeaderboardDealsLabel": "{count} deals closed",
+  "@salesAnalyticsLeaderboardDealsLabel": {
+    "description": "Deals count under a rep",
+    "placeholders": {"count": {"type": "String"}}
+  },
+  "salesAnalyticsLeaderboardAttainmentLabel": "{pct}% of {target}",
+  "@salesAnalyticsLeaderboardAttainmentLabel": {
+    "description": "Attainment line",
+    "placeholders": {
+      "pct": {"type": "String"},
+      "target": {"type": "String"}
+    }
+  },
+
+  "errorBoundaryGenericMessage": "Something went wrong",
+  "@errorBoundaryGenericMessage": {
+    "description": "Top-line message shown by ErrorBoundaryWidget when any widget's build() throws. Falls back to hardcoded English if Localizations are not in scope (which happens when the error fires before MaterialApp mounts)."
+  },
+
+  "commonEmailLabel": "Email",
+  "@commonEmailLabel": {"description": "Form field label for email address; shared across login + forgot-password."},
+
+  "loginWelcomeSubtitle": "Welcome back! Please sign in to continue.",
+  "loginPasswordLabel": "Password",
+  "loginForgotPasswordAction": "Forgot Password?",
+  "loginSignInAction": "Sign In",
+  "loginOrSecureWith": "OR SECURE WITH",
+  "loginUseBiometricsAction": "Use Biometrics",
+  "loginValidatorEmailRequired": "Please enter your email",
+  "loginValidatorEmailInvalid": "Please enter a valid email address",
+  "loginValidatorPasswordRequired": "Please enter your password",
+  "loginValidatorPasswordTooShort": "Password must be at least 6 characters",
+  "loginNoAccountPrompt": "Don't have an account?",
+  "loginCreateAccountAction": "Create one",
+
+  "registerWelcomeTitle": "Create your account",
+  "registerWelcomeSubtitle": "Start managing your business in minutes.",
+  "registerFullNameLabel": "Full name",
+  "registerFullNameHint": "Jane Doe",
+  "registerPhoneHint": "096 506 0999",
+  "registerValidatorPhoneRequired": "Please enter your phone number",
+  "registerValidatorPhoneInvalid": "Please enter a valid phone number",
+  "registerConfirmPasswordLabel": "Confirm password",
+  "registerTermsPrefix": "By tapping Create account you agree to our ",
+  "registerTermsLink": "Terms",
+  "registerTermsAnd": " and ",
+  "registerPrivacyLink": "Privacy Policy",
+  "registerTermsSuffix": ".",
+  "registerSubmitAction": "Create account",
+  "registerHaveAccountPrompt": "Already have an account?",
+  "registerSignInAction": "Sign in",
+  "registerValidatorFullNameRequired": "Please enter your full name",
+  "registerValidatorPasswordsMismatch": "Passwords do not match",
+  "registerValidatorAcceptTermsRequired": "Please accept the terms to continue",
+  "registerAcceptTermsLabel": "I accept the Terms and Privacy Policy",
+  "authGenericErrorFallback": "Something went wrong. Please try again.",
+  "authNetworkErrorFallback": "Can't reach the server. Check your connection and try again.",
+
+  "forgotPasswordTitle": "Forgot Password?",
+  "forgotPasswordSubtitle": "Enter your email address and we will send you a link to reset your password.",
+  "forgotPasswordValidatorEmailRequired": "Enter email",
+  "forgotPasswordSendResetAction": "Send Reset Link",
+  "forgotPasswordSentTitle": "Email Sent!",
+  "forgotPasswordSentSubtitle": "Please check your inbox for instructions to reset your password.",
+  "forgotPasswordBackToLoginAction": "Back to Login",
+
+  "biometricPageTitle": "Biometric Unlock",
+  "biometricAuthenticatingTitle": "Authenticating...",
+  "biometricHoldFingerSubtitle": "Please hold your finger on the sensor",
+  "biometricUseFingerprintSubtitle": "Use your fingerprint or face to continue",
+  "biometricUnlockNowAction": "Unlock Now",
+  "biometricUsePasswordInsteadAction": "Use Password Instead",
+
+  "otpResendCodeAction": "Resend Code (30s)",
+
+  "splashTagline": "Enterprise Excellence",
+
+  "dashboardGreeting": "Good Morning,",
+  "dashboardUserNamePlaceholder": "Demo Approver",
+  "@dashboardUserNamePlaceholder": {"description": "Placeholder name shown on the dashboard hero until real auth user name is wired through. Should still translate so the demo reads natively in any locale."},
+  "dashboardQuickAccessSection": "Quick Access",
+  "dashboardSimulatePushAction": "Simulate Push",
+  "dashboardRoutedPushAction": "Routed Push",
+  "dashboardKpiRevenueLabel": "Revenue (MTD)",
+  "dashboardKpiOpenInvoicesLabel": "Open invoices",
+  "dashboardKpiAvgFulfilmentLabel": "Avg fulfilment (d)",
+
+  "accountDetailTransactionsHeading": "TRANSACTIONS",
+  "accountDetailCurrentBalanceLabel": "CURRENT BALANCE",
+  "invoiceDetailRejectionReasonLabel": "Reason: {reason}",
+  "@invoiceDetailRejectionReasonLabel": {
+    "description": "Banner on rejected invoice detail showing the rejection reason",
+    "placeholders": {"reason": {"type": "String"}}
+  },
+  "invoiceListIssuedDateLabel": "ISSUED: {date}",
+  "@invoiceListIssuedDateLabel": {
+    "description": "Issued-date pill on invoice list tile",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "journalEntryListReferenceLabel": "REF: {reference} · {date}",
+  "@journalEntryListReferenceLabel": {
+    "description": "Reference + posted-date subtitle on journal entry tile",
+    "placeholders": {
+      "reference": {"type": "String"},
+      "date": {"type": "String"}
+    }
+  },
+
+  "commonSkuLabel": "SKU: {sku}",
+  "@commonSkuLabel": {
+    "description": "Generic 'SKU: {value}' label shared across procurement (PO, PR, goods receipt) and inventory (item list, item detail, stock movement, stock transfer)",
+    "placeholders": {"sku": {"type": "String"}}
+  },
+  "prListCreatedDateLabel": "CREATED: {date}",
+  "@prListCreatedDateLabel": {
+    "description": "Created-date pill on purchase request list tile",
+    "placeholders": {"date": {"type": "String"}}
+  },
+  "prListDepartmentLabel": "DEPT: {dept}",
+  "@prListDepartmentLabel": {
+    "description": "Department/cost-center pill on purchase request list tile",
+    "placeholders": {"dept": {"type": "String"}}
+  },
+
+  "inventorySkuLocationCompound": "SKU: {sku} · LOC: {loc}",
+  "@inventorySkuLocationCompound": {
+    "description": "Compound SKU + location label on cycle count rows",
+    "placeholders": {"sku": {"type": "String"}, "loc": {"type": "String"}}
+  },
+  "inventoryWarehouseLocationLabel": "WH: {wh} · LOC: {loc}",
+  "@inventoryWarehouseLocationLabel": {
+    "description": "Warehouse + location label on item list tile",
+    "placeholders": {"wh": {"type": "String"}, "loc": {"type": "String"}}
+  },
+  "inventoryCurrentStockLabel": "CURRENT STOCK",
+  "inventoryAvailableToTransferLabel": "AVAILABLE TO TRANSFER",
+
+  "customerFormCompanyOrPersonNameLabel": "Company or Person Name",
+  "customerFormIndustryOptionalLabel": "Industry (Optional)",
+  "commonPhoneNumberLabel": "Phone Number",
+  "@commonPhoneNumberLabel": {"description": "Generic phone-number form field label shared across customer form (sales) and employee detail (hr)."},
+  "commonPhoneLabel": "Phone",
+  "@commonPhoneLabel": {"description": "Short 'Phone' label used in compact contact info rows (e.g. my-profile). Distinct from commonPhoneNumberLabel which is for form fields."},
+  "customerFormBillingAddressLabel": "Billing Address",
+  "customerFormNotesRemarksOptionalLabel": "Notes / Remarks (Optional)",
+  "customerFormSaveFailureSnack": "Failed to save customer: {error}",
+  "@customerFormSaveFailureSnack": {
+    "description": "SnackBar shown when saving a customer throws",
+    "placeholders": {"error": {"type": "String"}}
+  },
+  "customerListNewCustomerAction": "New Customer",
+
+  "commonCancelAction": "Cancel",
+  "commonRetryAction": "Retry",
+  "commonLoadFailedFallback": "Could not load. Please try again.",
+
+  "assignmentsPageTitle": "Assign Permissions & Roles",
+  "assignmentsRolesTab": "Roles → Permissions",
+  "assignmentsUsersTab": "Users → Roles",
+  "assignmentsPickRolePrompt": "Pick a role to edit its permissions",
+  "assignmentsPickUserPrompt": "Pick a user to edit their roles",
+  "assignmentsPermissionsSectionTitle": "Permissions",
+  "assignmentsRolesSectionTitle": "Roles",
+  "assignmentsCountSuffix": "{count} selected",
+  "@assignmentsCountSuffix": {"placeholders": {"count": {"type": "int"}}},
+  "assignmentsSaveAction": "Save changes",
+  "assignmentsNoChangesYet": "No changes",
+  "assignmentsSavedSnack": "Saved",
+  "assignmentsSaveFailedSnack": "Could not save changes",
+  "assignmentsForbiddenMessage": "You don't have permission to make changes here.",
+  "assignmentsSuperAdminOnlyTitle": "Super-administrators only",
+  "assignmentsSuperAdminOnlyMessage": "Only super-administrators can assign roles and permissions. Sign in with a super-admin account to use this page.",
+  "assignmentsUsersSearchHint": "Search users…",
+  "assignmentsSearchPermissionsHint": "Search permissions…",
+  "assignmentsRolePickerLabel": "Role",
+  "assignmentsSystemRoleBadge": "SYSTEM",
+  "assignmentsSystemRoleLockedMessage": "System roles are read-only. Create a custom role to assign different permissions.",
+  "assignmentsLoadMoreAction": "Load more",
+  "assignmentsEmptyUsers": "No users yet.",
+  "assignmentsNoUserSelected": "Pick a user from the list to assign roles.",
+  "assignmentsNoRoleSelected": "Pick a role above to start assigning permissions.",
+  "assignmentsAssignSubtitle": "Pick a role, then the users to assign it to. Each user gets exactly one role.",
+  "assignmentsSaveActionAssign": "Assign role to {count, plural, one{# user} other{# users}}",
+  "@assignmentsSaveActionAssign": {"placeholders": {"count": {"type": "int"}}},
+  "assignmentsUserFieldLabel": "USERS",
+  "assignmentsRoleFieldLabel": "ROLE",
+  "assignmentsModeFieldLabel": "MODE",
+  "assignmentsRoleHelperPickUserFirst": "Pick at least one user to enable role assignment.",
+  "assignmentsRoleHelperCurrentRole": "Applies the selected role to every picked user.",
+  "assignmentsPickUsersPrompt": "Pick users…",
+  "assignmentsUsersSelectedCount": "{count, plural, one{# user selected} other{# users selected}}",
+  "@assignmentsUsersSelectedCount": {"placeholders": {"count": {"type": "int"}}},
+  "assignmentsUsersSelectedSummary": "{first} +{others, plural, one{# other} other{# others}}",
+  "@assignmentsUsersSelectedSummary": {
+    "placeholders": {
+      "first": {"type": "String"},
+      "others": {"type": "int"}
+    }
+  },
+  "assignmentsModeAdd": "Add",
+  "assignmentsModeReplace": "Replace",
+  "assignmentsModeRemove": "Remove",
+  "assignmentsModeHelperAdd": "Adds the role on top of each user's existing roles.",
+  "assignmentsModeHelperReplace": "Replaces each user's roles with only the picked role.",
+  "assignmentsModeHelperRemove": "Strips the picked role from each user (others kept).",
+  "assignmentsSaveActionBulk": "{mode, select, add{Add role to {count, plural, one{# user} other{# users}}} replace{Replace roles on {count, plural, one{# user} other{# users}}} remove{Remove role from {count, plural, one{# user} other{# users}}} other{Save changes}}",
+  "@assignmentsSaveActionBulk": {
+    "placeholders": {
+      "mode": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+  "assignmentsSelectAllAction": "Select all",
+  "assignmentsClearSelectionAction": "Clear",
+  "assignmentsConfirmDoneAction": "Done",
+  "assignmentsUserNoRoleBadge": "No role",
+  "assignmentsUserRolesMore": "+{count}",
+  "@assignmentsUserRolesMore": {"placeholders": {"count": {"type": "int"}}},
+  "assignmentsFilterAll": "All",
+  "assignmentsFilterHasRole": "Has role",
+  "assignmentsFilterNoRole": "No role",
+  "commonApproveAction": "Approve",
+  "commonRejectAction": "Reject",
+
+  "hrEmployeeDetailNotFoundTitle": "Employee not found",
+  "hrEmployeeDetailNotFoundBody": "No employee with ID \"{employeeId}\" exists.",
+  "@hrEmployeeDetailNotFoundBody": {
+    "placeholders": {"employeeId": {"type": "String"}}
+  },
+  "hrEmployeeDetailOfficeLocationLabel": "Office Location",
+  "hrEmployeeDetailDepartmentLabel": "Department",
+  "hrEmployeeDetailPositionTitleLabel": "Position Title",
+  "hrEmployeeDetailHireDateLabel": "Hire Date",
+  "hrEmployeeDetailMonthlySalaryLabel": "Monthly Salary",
+  "hrEmployeeDetailManagerIdLabel": "Manager ID",
+  "hrEmployeeDetailTabAttendance": "Attendance",
+  "hrEmployeeDetailTabPayslips": "Payslips",
+  "hrEmployeeDetailTabLeaves": "Leaves",
+  "hrEmployeeDetailTabOrgChart": "Org Chart",
+
+  "hrEmployeeListOrgChartTooltip": "Org chart",
+  "hrEmployeeListSortTooltip": "Sort",
+  "hrEmployeeListSortNameAz": "Name (A–Z)",
+  "hrEmployeeListSortRecentlyHired": "Recently hired",
+  "hrEmployeeListSortDepartment": "Department",
+  "hrEmployeeListErrorLoading": "Error loading directory",
+  "hrEmployeeListSearchHint": "Search name, email, position…",
+  "hrEmployeeListEmptyTitle": "No matching employees",
+  "hrEmployeeListEmptySubtitle": "Try refining your search query or filters",
+
+  "hrLeaveApprovalRejectReasonTitle": "Reason for rejection",
+  "hrLeaveApprovalConfirmRejectionAction": "Confirm Rejection",
+  "hrLeaveApprovalConfirmApprovalTitle": "Approve this leave request?",
+  "hrLeaveApprovalNoteHint": "Add a note (optional)",
+  "hrLeaveApprovalNoYearlyBalance": "No yearly balance configured",
+  "hrLeaveApprovalFromLabel": "From",
+  "hrLeaveApprovalToLabel": "To",
+  "hrLeaveApprovalSubmittedAt": "Submitted {timestamp}",
+  "@hrLeaveApprovalSubmittedAt": {
+    "placeholders": {"timestamp": {"type": "String"}}
+  },
+  "hrLeaveApprovalIfApprovedLabel": "If Approved",
+  "hrLeaveApprovalIfRejectedLabel": "If Rejected",
+
+  "hrLeaveRequestsTabAll": "All",
+  "hrLeaveRequestsTabPending": "Pending",
+  "hrLeaveRequestsTabMine": "Mine",
+  "hrLeaveRequestsNewRequestTooltip": "New request",
+  "hrLeaveRequestsEmptyTitle": "No leave requests",
+  "hrLeaveRequestsEmptySubtitle": "There are no requests matching this filter.",
+  "hrLeaveRequestsApprovedSnack": "Leave request approved.",
+  "hrLeaveRequestsRejectDialogTitle": "Reject Leave Request",
+  "hrLeaveRequestsRejectedSnack": "Leave request rejected.",
+  "hrLeaveRequestsRejectionReasonRequiredSnack": "A rejection reason is required.",
+
+  "hrLeaveFormSubmittedSnack": "Leave request submitted successfully.",
+  "hrLeaveFormPreferencesSection": "LEAVE PREFERENCES",
+  "hrLeaveFormDurationSection": "DURATION SELECTOR",
+  "hrLeaveFormAttachmentsSection": "ATTACHMENTS & EVIDENCE",
+  "hrLeaveFormJustificationSection": "JUSTIFICATION",
+  "hrLeaveFormSubmitAction": "Submit Leave Request",
+  "hrLeaveFormUploadingAttachment": "Uploading attachment...",
+  "hrLeaveFormReadyToUpload": "Ready to upload",
+  "hrLeaveFormRemoveAttachmentTooltip": "Remove",
+  "hrLeaveFormTapToUploadDocument": "TAP TO UPLOAD DOCUMENT",
+  "hrLeaveFormUploadSupportedFormats": "Support PDF, PNG, JPG up to 10MB (Medical Cert, etc.)",
+
+  "hrLeaveBalanceHistoryTooltip": "Leave History",
+  "hrLeaveBalanceRequestLeaveTooltip": "Request Leave",
+  "hrLeaveBalanceNoEntitlements": "No entitlements on file",
+  "hrLeaveBalanceRemainingLabel": "Remaining",
+  "hrLeaveBalanceTakenLabel": "Taken",
+  "hrLeaveBalanceTotalLabel": "Total",
+  "hrLeaveBalanceBreakdownHeading": "ENTITLEMENT BREAKDOWN",
+
+  "hrAttendanceRecentEntriesHeading": "RECENT ENTRIES",
+  "hrAttendanceEmptyMessage": "No attendance records yet",
+
+  "hrPayslipsEmpty": "No payslips on file",
+  "hrPayslipsArchiveHeading": "PAYSLIP ARCHIVE",
+  "hrPayslipsAggregateSummaryHeading": "Aggregate Summary",
+  "hrPayslipsNetPayLabel": "Net: {amount}",
+  "@hrPayslipsNetPayLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+  "hrPayslipsGrossPayLabel": "Gross: {amount}",
+  "@hrPayslipsGrossPayLabel": {
+    "placeholders": {"amount": {"type": "String"}}
+  },
+
+  "hrPayslipDetailNotFound": "No payslip with id \"{payslipId}\".",
+  "@hrPayslipDetailNotFound": {
+    "placeholders": {"payslipId": {"type": "String"}}
+  },
+  "hrPayslipDetailNetPayoutLabel": "NET PAYOUT",
+  "hrPayslipDetailBreakdownHeading": "LINE ITEM BREAKDOWN",
+
+  "hrOrgChartPageTitle": "Organization Chart",
+  "hrOrgChartEmptyTitle": "No employees found",
+  "hrOrgChartEmptySubtitle": "Add employees to see the hierarchy.",
+
+  "hrAttendancePageTitle": "Attendance Log",
+  "hrEmployeeDetailPageTitle": "Employee Profile",
+  "hrEmployeeDetailSectionQuickActions": "Quick Actions",
+  "hrEmployeeDetailSectionContact": "Contact Information",
+  "hrEmployeeDetailSectionEmployment": "Employment Details",
+  "hrEmployeeListPageTitle": "Employee Directory",
+  "hrLeaveApprovalPageTitle": "Leave Request",
+  "hrLeaveBalancePageTitle": "Leave Balance",
+  "hrLeaveRequestsPageTitle": "Leave Requests",
+  "hrLeaveFormPageTitle": "New Leave Request",
+  "hrPayslipsPageTitle": "Payslips History",
+  "hrPayslipDetailPageTitle": "Payslip Detail",
+
+  "projectBoardPageTitle": "Task Board",
+  "projectBoardNewTaskAction": "New Task",
+  "projectBoardDropZoneHint": "Drop tasks here",
+
+  "projectDetailPageTitle": "Project Details",
+  "projectDetailOpenBoardTooltip": "Open Board",
+  "projectDetailEditProjectTooltip": "Edit Project",
+  "projectDetailNotFound": "No project with id \"{projectId}\".",
+  "@projectDetailNotFound": {"placeholders": {"projectId": {"type": "String"}}},
+  "projectDetailProjectIdLabel": "Project ID: {code}",
+  "@projectDetailProjectIdLabel": {"placeholders": {"code": {"type": "String"}}},
+  "projectDetailDescriptionHeading": "DESCRIPTION",
+  "projectDetailTasksHeading": "PROJECT TASKS",
+  "projectDetailNoTasks": "No tasks assigned yet.",
+
+  "projectFormNameLabel": "Project name",
+  "projectFormCodeLabel": "Project code",
+  "projectFormDescriptionLabel": "Description",
+  "projectFormStartLabel": "Start",
+  "projectFormEndLabel": "End",
+  "projectFormDurationLabel": "Duration: {duration}",
+  "@projectFormDurationLabel": {"placeholders": {"duration": {"type": "String"}}},
+  "projectFormBudgetLabel": "Budget (formatted)",
+  "projectFormPickEmployeeAction": "Pick an employee",
+
+  "projectListPageTitle": "Projects",
+  "projectListTimesheetsTooltip": "Timesheets",
+  "projectListSortTooltip": "Sort",
+  "projectListSortNameAz": "Name (A–Z)",
+  "projectListSortRecentlyStarted": "Recently started",
+  "projectListSortDueSoonest": "Due soonest",
+  "projectListErrorMessage": "Error: {message}",
+  "@projectListErrorMessage": {"placeholders": {"message": {"type": "String"}}},
+  "projectListViewListAction": "List View",
+  "projectListViewGanttAction": "Gantt Chart",
+  "projectListSearchHint": "Search name, code, owner…",
+  "projectListEmpty": "No projects match.",
+  "projectListNewProjectAction": "New Project",
+  "projectListCodeOwnerSubtitle": "Code: {code} • Owner: {owner}",
+  "@projectListCodeOwnerSubtitle": {"placeholders": {"code": {"type": "String"}, "owner": {"type": "String"}}},
+
+  "taskAssignPageTitle": "Assign Task",
+  "taskAssignErrorLoading": "Could not load employees",
+  "taskAssignSuccessSnack": "Assigned to {name}",
+  "@taskAssignSuccessSnack": {"placeholders": {"name": {"type": "String"}}},
+  "taskAssignFailureSnack": "Assign failed: {error}",
+  "@taskAssignFailureSnack": {"placeholders": {"error": {"type": "String"}}},
+  "taskAssignCurrentlyLabel": "Currently: ",
+  "taskAssignSearchHint": "Search by name, role or department…",
+  "taskAssignClearTooltip": "Clear",
+  "taskAssignNoteHint": "Add a note to the assignee… (e.g. \"context in #project-alpha\")",
+  "taskAssignEmpty": "No employees match that search.",
+
+  "taskDetailPageTitle": "Task Details",
+  "taskDetailMoreTooltip": "More",
+  "taskDetailEditTaskAction": "Edit task",
+  "taskDetailReassignAction": "Reassign",
+  "taskDetailNotFound": "No task with id \"{taskId}\".",
+  "@taskDetailNotFound": {"placeholders": {"taskId": {"type": "String"}}},
+  "taskDetailDescriptionHeading": "DESCRIPTION",
+  "taskDetailCommentsHeading": "COMMENTS",
+  "taskDetailNoComments": "No comments yet.",
+  "taskDetailAddCommentHint": "Add a comment…",
+
+  "taskFormPageTitleEdit": "Edit Task",
+  "taskFormPageTitleNew": "New Task",
+  "taskFormTitleRequiredValidator": "Title is required",
+  "taskFormTitleHint": "What needs to be done?",
+  "taskFormDescriptionHint": "Add a description…",
+  "taskFormStatusLabel": "Status",
+  "taskFormPriorityLabel": "Priority",
+  "taskFormAssigneeLabel": "Assignee",
+  "taskFormUnassignedLabel": "Unassigned",
+  "taskFormDueDateLabel": "Due Date",
+  "taskFormClearDueDateTooltip": "Clear due date",
+  "taskFormAddDueDateAction": "Add due date",
+  "taskFormAssignToAction": "Assign to…",
+  "taskFormUnassignAction": "Unassign",
+
+  "timesheetsPageTitle": "Timesheets",
+  "timesheetsUtilizationTooltip": "Utilization",
+  "timesheetsTabMine": "Mine",
+  "timesheetsTabApprovals": "Approvals",
+  "timesheetsTabAll": "All",
+  "timesheetsEmpty": "No timesheet entries found.",
+  "timesheetsLogTimeAction": "Log time",
+  "timesheetsTaskLabel": "Task: {title}",
+  "@timesheetsTaskLabel": {"placeholders": {"title": {"type": "String"}}},
+  "timesheetsRejectionNoteLabel": "Rejection Note: {note}",
+  "@timesheetsRejectionNoteLabel": {"placeholders": {"note": {"type": "String"}}},
+  "timesheetsSubmitForApprovalAction": "Submit for Approval",
+  "timesheetsReopenAsDraftAction": "Re-open as Draft",
+  "timesheetsApprovedSnack": "Timesheet approved.",
+  "timesheetsRejectDialogTitle": "Reject timesheet",
+  "timesheetsRejectedSnack": "Timesheet rejected.",
+  "timesheetsReasonRequiredSnack": "A reason is required.",
+  "timesheetsSubmittedSnack": "Submitted for approval.",
+  "timesheetsReopenedSnack": "Reopened as draft.",
+
+  "timesheetFormPageTitle": "Log Time",
+  "timesheetFormSubmitToggleLabel": "Submit for approval immediately",
+  "timesheetFormSubmitToggleHint": "Otherwise it lands as a draft you can edit later.",
+  "timesheetFormSaveAction": "Save Timesheet",
+
+  "utilizationPageTitle": "Utilization",
+  "utilizationThisWeekToggle": "This week",
+  "utilizationThisMonthToggle": "This month",
+  "utilizationApprovedHoursHeading": "APPROVED HOURS VS TARGET",
+  "utilizationNoHoursInWindow": "No approved hours in this window.",
+
+  "ganttChartNoProjects": "No projects in this window.",
+
+  "settingsHomePageTitle": "Settings",
+  "settingsHomeAccountSection": "Account",
+  "settingsHomeMyProfileTitle": "My profile",
+  "settingsHomeMyProfileSubtitle": "Contact, personal, security",
+  "settingsHomeMyRolesTitle": "My roles & permissions",
+  "settingsHomeMyRolesSubtitle": "What you can do in the app",
+  "settingsHomePreferencesSection": "Preferences",
+  "settingsHomeAppearanceTitle": "Appearance",
+  "settingsHomeAppearanceSubtitle": "Light, dark, or follow system",
+  "settingsHomeLanguageTitle": "Language",
+  "settingsHomeLanguageSubtitle": "English / ខ្មែរ",
+  "settingsHomeNotificationsTitle": "Notifications",
+  "settingsHomeNotificationsSubtitle": "Push + email per category",
+  "settingsHomeSecuritySection": "Security & Access",
+  "settingsHomeActiveDevicesTitle": "Active devices",
+  "settingsHomeActiveDevicesSubtitle": "Sessions you can revoke",
+  "settingsHomeAuditLogTitle": "Audit log",
+  "settingsHomeAuditLogSubtitle": "Who did what, when",
+  "settingsHomeAppLockTitle": "App lock",
+  "settingsHomeAppLockSubtitle": "PIN + biometric re-auth",
+  "settingsHomeAdminSection": "Administration",
+  "settingsHomeUserMgmtTitle": "User management",
+  "settingsHomeUserMgmtSubtitle": "Invite, suspend, assign roles",
+  "settingsHomeRolesPermsTitle": "Roles & permissions",
+  "settingsHomeRolesPermsSubtitle": "Editor for custom roles",
+  "settingsHomeApiConfigTitle": "API configuration",
+  "settingsHomeApiConfigSubtitle": "Switch environment / tenant",
+  "settingsHomeSignOutAction": "Sign out",
+  "settingsHomeSignOutConfirmTitle": "Sign out?",
+  "settingsHomeSignOutConfirmMessage": "You'll need to sign in again to access your data on this device.",
+  "settingsHomeSignOutErrorSnack": "Could not sign out cleanly. Please try again.",
+
+  "appearancePageTitle": "Appearance",
+  "appearanceChooseThemeHeading": "CHOOSE THEME MODE",
+  "appearanceModeSystem": "System default",
+  "appearanceModeLight": "Light Mode",
+  "appearanceModeDark": "Dark Mode",
+  "appearanceSubtitleSystem": "Follow the OS appearance setting",
+  "appearanceSubtitleLight": "Always use the light palette",
+  "appearanceSubtitleDark": "Always use the dark palette",
+
+  "languagePageTitle": "Language",
+  "languageSelectPreferredHeading": "SELECT PREFERRED LANGUAGE",
+  "languageDemoLaunchNote": "Language change applies on next app launch in this demo build.",
+  "languageEnglishLabel": "English",
+  "languageKhmerLabel": "Khmer",
+  "languageEnglishNative": "United Kingdom",
+  "languageKhmerNative": "ភាសាខ្មែរ",
+
+  "notificationPrefsPageTitle": "Notifications",
+  "notificationPrefsChannelsHeading": "NOTIFICATION CHANNELS",
+  "notificationPrefsPushTitle": "Push Notifications",
+  "notificationPrefsEmailTitle": "Email Updates",
+  "notificationPrefsChannelApprovals": "Approvals",
+  "notificationPrefsChannelMentions": "Mentions & comments",
+  "notificationPrefsChannelSystemAlerts": "System alerts",
+  "notificationPrefsChannelMarketing": "Marketing & tips",
+  "notificationPrefsChannelApprovalsDescription": "Invoices, leave requests, timesheets pending action",
+  "notificationPrefsChannelMentionsDescription": "Someone @-mentioned you on a task or comment",
+  "notificationPrefsChannelSystemAlertsDescription": "Sync failures, downtime windows, security events",
+  "notificationPrefsChannelMarketingDescription": "Product news, tips, and feature announcements",
+
+  "sessionsPageTitle": "Active devices",
+  "sessionsSignOutOthersSnack": "Other devices signed out.",
+  "sessionsSignOutOthersAction": "Sign out all other devices",
+  "sessionsEmpty": "No active sessions.",
+  "sessionsThisDeviceLabel": "This device",
+  "sessionsRevokeAccessAction": "Revoke Access",
+  "sessionsLastActiveLabel": "Last active",
+  "sessionsSignedInLabel": "Signed in",
+  "sessionsLocationLabel": "Location",
+  "sessionsIpAddressLabel": "IP Address",
+  "sessionsRevokedSnack": "{device} signed out.",
+  "@sessionsRevokedSnack": {"placeholders": {"device": {"type": "String"}}},
+
+  "auditLogPageTitle": "Audit Log",
+  "auditLogSearchHint": "Search actor, target, or details…",
+  "auditLogEmpty": "No log entries match your filters.",
+  "auditLogDetailDialogTitle": "Audit Entry Details",
+  "auditLogAdditionalMetadataLabel": "Additional Metadata:",
+  "auditLogCloseAction": "Close",
+  "auditLogActorIdLabel": "Actor ID",
+  "auditLogActorNameLabel": "Actor Name",
+  "auditLogActionVerbLabel": "Action Verb",
+  "auditLogTargetTypeLabel": "Target Type",
+  "auditLogTargetIdLabel": "Target ID",
+  "auditLogTargetLabelLabel": "Target Label",
+  "auditLogTimestampLabel": "Timestamp",
+
+  "appLockPageTitle": "App Lock Settings",
+  "appLockDeviceProtectionHeading": "DEVICE PROTECTION",
+  "appLockPinTitle": "App Lock PIN",
+  "appLockPinSubtitle": "Require a secure 4–8 digit PIN on resume",
+  "appLockBiometricTitle": "Biometric Authentication",
+  "appLockBiometricSubtitle": "Use Face ID / Fingerprint instead of entering PIN",
+  "appLockTimeoutHeading": "TIMEOUT CONFIGURATION",
+  "appLockAutoLockDurationTitle": "Auto-lock Duration",
+  "appLockChangePinTitle": "Change Lock PIN",
+  "appLockChangePinSubtitle": "Replace existing security entry code",
+  "appLockPinUpdatedSnack": "PIN updated successfully.",
+  "appLockSetSecurePinAction": "Set Secure PIN",
+  "appLockSavePinAction": "Save PIN",
+  "appLockCannotEnableFallback": "Cannot enable.",
+  "appLockLockImmediatelySubtitle": "Lock immediately on backgrounding",
+  "appLockMinutesAfterBackgroundSubtitle": "{count} minutes after backgrounding",
+  "@appLockMinutesAfterBackgroundSubtitle": {"placeholders": {"count": {"type": "int"}}},
+  "appLockRequiresPinSubtitle": "Requires App Lock PIN to be enabled",
+  "appLockFootnote": "Your PIN and biometric metrics are secure. Keys are strictly kept inside the hardware OS-backed Keystore / Keychain. Uninstalling or wiping application storage resets lock settings.",
+  "appLockAutoLockSheetSubtitle": "Select the inactivity grace period before the app locks",
+  "appLockHeaderEnabledTitle": "App Protection Enabled",
+  "appLockHeaderDisabledTitle": "App Protection Disabled",
+  "appLockHeaderEnabledSubtitle": "Your device settings mandate a security checkpoint upon resume.",
+  "appLockHeaderDisabledSubtitle": "Configure a security PIN below to safeguard your ERP environment data.",
+  "appLockOptionImmediately": "Immediately",
+  "appLockOptionMinute": "{count} minute",
+  "@appLockOptionMinute": {"placeholders": {"count": {"type": "int"}}},
+  "appLockOptionMinutes": "{count} minutes",
+  "@appLockOptionMinutes": {"placeholders": {"count": {"type": "int"}}},
+  "appLockOptionImmediatelySubtitle": "Lock the app the instant it goes to background",
+  "appLockOptionMinuteSubtitle": "Lock the app after {count} minute in background",
+  "@appLockOptionMinuteSubtitle": {"placeholders": {"count": {"type": "int"}}},
+  "appLockOptionMinutesSubtitle": "Lock the app after {count} minutes in background",
+  "@appLockOptionMinutesSubtitle": {"placeholders": {"count": {"type": "int"}}},
+  "appLockPinFieldLabel": "PIN (4–8 digits)",
+  "appLockConfirmPinLabel": "Confirm PIN",
+
+  "apiConfigPageTitle": "API Configuration",
+  "apiConfigClustersHeading": "AVAILABLE ENVIRONMENT CLUSTERS",
+  "apiConfigSwitchedSnack": "Switched environment cluster to \"{name}\".",
+  "@apiConfigSwitchedSnack": {"placeholders": {"name": {"type": "String"}}},
+  "apiConfigAddClusterAction": "Add Cluster",
+  "apiConfigAddCustomClusterTitle": "Add Custom Cluster",
+  "apiConfigBuiltInBadge": "BUILT-IN",
+  "apiConfigDeletedSnack": "Deleted environment cluster \"{name}\".",
+  "@apiConfigDeletedSnack": {"placeholders": {"name": {"type": "String"}}},
+  "apiConfigClusterNameLabel": "Cluster Name",
+  "apiConfigClusterNameHint": "e.g. Asia Pacific Staging",
+  "apiConfigBaseUrlLabel": "Base URL",
+  "apiConfigBaseUrlHint": "https://api-apac.tenant.example.com",
+  "apiConfigBannerWarning": "Switching environment clusters signs you out of the current tenant session to prevent cross-contamination of credentials.",
+  "apiConfigCannotDeleteFallback": "Cannot delete.",
+
+  "roleEditorPageTitle": "Roles & Permissions",
+  "roleEditorNewRoleAction": "New Role",
+  "roleEditorCreateCustomRoleTitle": "Create Custom Role",
+  "roleEditorRoleNameLabel": "Role Name (e.g. Finance Admin)",
+  "roleEditorDescriptionLabel": "Description",
+  "roleEditorAssignScopesHeading": "Assign Permission Scopes",
+  "roleEditorCreateRoleAction": "Create Role",
+  "roleEditorSystemBadge": "SYSTEM",
+  "roleEditorPermissionScopesHeading": "PERMISSION SCOPES",
+  "roleEditorDeleteRoleAction": "Delete Role",
+  "roleEditorUpdateFailedSnack": "Cannot update permissions: {error}",
+  "@roleEditorUpdateFailedSnack": {"placeholders": {"error": {"type": "String"}}},
+  "roleEditorDeleteConfirmTitle": "Delete \"{name}\"?",
+  "@roleEditorDeleteConfirmTitle": {"placeholders": {"name": {"type": "String"}}},
+  "roleEditorDeleteConfirmMessage": "This action cannot be undone and will strip permissions from all assigned users.",
+  "roleEditorCannotDeleteFallback": "Cannot delete.",
+  "roleEditorDeleteAction": "Delete",
+
+  "userMgmtPageTitle": "User Managements",
+  "userMgmtEmpty": "No users match the selected status.",
+  "userMgmtInviteUserAction": "Invite User",
+  "userMgmtInviteSheetTitle": "Invite a new user",
+  "userMgmtAssignRolesLabel": "Assign Roles",
+  "userMgmtInvitedSnack": "Invited {email}",
+  "@userMgmtInvitedSnack": {"placeholders": {"email": {"type": "String"}}},
+  "userMgmtSendInvitationAction": "Send Invitation",
+  "userMgmtYouBadge": "You",
+  "userMgmtActivateUserAction": "Activate User",
+  "userMgmtSuspendUserAction": "Suspend User",
+  "userMgmtStatusSetSnack": "Status set to {status}.",
+  "@userMgmtStatusSetSnack": {"placeholders": {"status": {"type": "String"}}},
+  "userMgmtFilterAll": "All",
+  "userMgmtFilterActive": "Active",
+  "userMgmtFilterInvited": "Invited",
+  "userMgmtFilterSuspended": "Suspended",
+  "userMgmtNewUserPlaceholder": "New User",
+  "userMgmtEmailAddressLabel": "Email Address",
+  "userMgmtFullNameLabel": "Full Name",
+  "userMgmtCannotApplyFallback": "Cannot apply.",
+  "userMgmtStatusActive": "ACTIVE",
+  "userMgmtStatusInvited": "INVITED",
+  "userMgmtStatusSuspended": "SUSPENDED",
+
+  "myRolesPageTitle": "My Roles & Permissions",
+  "myRolesGrantedTitle": "Granted",
+  "myRolesNotGrantedTitle": "Not Granted",
+  "myRolesAssignedRolesLabel": "Your assigned roles",
+  "myRolesSyncedAtLabel": "Synced {timestamp}",
+  "@myRolesSyncedAtLabel": {"placeholders": {"timestamp": {"type": "String"}}},
+  "myRolesSearchHint": "Search permissions…",
+
+  "myProfilePageTitle": "My Profile",
+  "myProfileUpdatedSnack": "Profile updated.",
+  "myProfileEditAction": "Edit",
+  "myProfileContactSection": "Contact",
+  "myProfilePersonalSection": "Personal",
+  "myProfileAccountSecuritySection": "Account Security",
+  "myProfilePhotoLocalSheetSubtitle": "Photo only changes on this device.",
+  "myProfileImageReadErrorSnack": "Could not read the selected image.",
+  "myProfileImagePickErrorSnack": "Could not pick image: {error}",
+  "@myProfileImagePickErrorSnack": {"placeholders": {"error": {"type": "String"}}},
+  "myProfileEmployeeRowLabel": "Employee",
+  "myProfileTenureRowLabel": "Tenure",
+  "myProfileLastLoginRowLabel": "Last login",
+  "myProfileEmployeeIdLabel": "Employee ID",
+  "myProfileHireDateLabel": "Hire date",
+  "myProfileBirthdateLabel": "Birthdate",
+  "myProfileAddressLabel": "Address",
+  "myProfileEmergencyContactLabel": "Emergency contact",
+  "myProfileEmergencyPhoneLabel": "Emergency phone",
+  "myProfileFullNameLabel": "Full name",
+  "myProfileSaveChangesAction": "Save changes",
+  "myProfileChangePasswordTitle": "Change password",
+  "myProfileChangePasswordSubtitle": "Requires current password",
+  "myProfileChangePinTitle": "Change PIN",
+  "myProfileChangePinSubtitle": "Set or replace your unlock PIN",
+  "myProfileEnableBiometricTitle": "Enable biometric",
+  "myProfileLastLoginAtLabel": "Last login: {date}",
+  "@myProfileLastLoginAtLabel": {"placeholders": {"date": {"type": "String"}}},
+  "myProfileReAuthBadge": "RE-AUTH",
+  "myProfileBiometricUnlockTitle": "Biometric unlock",
+  "myProfileConfirmAction": "Confirm",
+  "myProfileSaveErrorSnack": "Could not save changes: {error}",
+  "@myProfileSaveErrorSnack": {"placeholders": {"error": {"type": "String"}}},
+  "myProfileChangePhotoSheetTitle": "Change profile photo",
+  "myProfileAddPhotoSheetTitle": "Add a profile photo",
+  "myProfileEmailRequiresVerificationHelper": "Requires verification on the new address",
+  "myProfilePhoneRequiresVerificationHelper": "Requires SMS verification on the new number",
+  "myProfileManagedByHrBadge": "Managed by HR",
+  "myProfileChangePasswordReAuthMessage": "Re-enter your current password to confirm this change.",
+  "myProfileChangePinReAuthMessage": "Re-authenticate before changing your PIN.",
+  "myProfileEnableBiometricReAuthMessage": "Re-authenticate to bind your device biometric to this app.",
+  "myProfileCannotToggleBiometricFallback": "Cannot toggle biometric",
+  "myProfilePasswordChangeStubSnack": "Password change flow would open here.",
+  "myProfileCurrentPasswordLabel": "Current password",
+  "myProfileBiometricEnabledSubtitle": "Tap to disable — re-auth not required",
+  "myProfileBiometricDisabledSubtitle": "Re-auth required to enable",
+  "myProfileNameFieldHumanLabel": "Name",
+  "myProfileEmailFieldHumanLabel": "Email",
+  "myProfilePhoneFieldHumanLabel": "Phone",
+  "myProfileRelativeToday": "Today",
+  "myProfileRelativeYesterday": "Yesterday",
+  "myProfileRelativeDaysAgo": "{count}d ago",
+  "@myProfileRelativeDaysAgo": {"placeholders": {"count": {"type": "int"}}},
+  "myProfileRelativeWeeksAgo": "{count}w ago",
+  "@myProfileRelativeWeeksAgo": {"placeholders": {"count": {"type": "int"}}},
+  "myProfileRelativeMonthsAgo": "{count}mo ago",
+  "@myProfileRelativeMonthsAgo": {"placeholders": {"count": {"type": "int"}}},
+  "myProfileRelativeYearsAgo": "{count}y ago",
+  "@myProfileRelativeYearsAgo": {"placeholders": {"count": {"type": "int"}}},
+  "myProfileTenureLessThanMonth": "<1 mo",
+  "myProfileTenureMonths": "{count} mo",
+  "@myProfileTenureMonths": {"placeholders": {"count": {"type": "int"}}},
+  "myProfileTenureYear": "{count} yr",
+  "@myProfileTenureYear": {"placeholders": {"count": {"type": "int"}}},
+  "myProfileTenureYears": "{count} yrs",
+  "@myProfileTenureYears": {"placeholders": {"count": {"type": "int"}}},
+  "myProfileTenureYearsMonths": "{years}y {months}m",
+  "@myProfileTenureYearsMonths": {"placeholders": {"years": {"type": "int"}, "months": {"type": "int"}}}
+}

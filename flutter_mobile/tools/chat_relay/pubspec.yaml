@@ -1,0 +1,13 @@
+name: chat_relay
+description: Tiny WebSocket relay for Module 10 chat demo — broadcasts every received envelope to all other connected clients. No auth, no persistence.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.4.0
+
+dependencies:
+  shelf: ^1.4.1
+  shelf_web_socket: ^2.0.0
+  web_socket_channel: ^3.0.1
+  args: ^2.5.0
