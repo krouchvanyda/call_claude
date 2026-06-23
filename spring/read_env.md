@@ -18,8 +18,8 @@ SERVER_CONTEXT_PATH=/
 #   openssl rand -base64 64
 JWT_ISSUER=erp
 JWT_SECRET=dev-secret-change-me-in-production-must-be-long-enough-for-hmac-sha256
-JWT_ACCESS_TTL=PT15M
-JWT_REFRESH_TTL=P14D
+JWT_ACCESS_TTL=P365D
+JWT_REFRESH_TTL=P365D
 
 # --- CORS ---
 # Comma-separated list, e.g. https://app.example.com,https://admin.example.com
