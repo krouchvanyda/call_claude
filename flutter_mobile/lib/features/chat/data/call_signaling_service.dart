@@ -796,6 +796,18 @@ class CallSignalingService {
             : ChatCallStatus.answered,
       ));
     }
+    // CRITICAL (case #4: "after an ANSWERED call ends, the next call to a
+    // killed+locked callee shows no ring"). When B accepts from a locked
+    // screen the accept connected B's Stream WS on demand (via _ensureClient)
+    // — and when B was locked the STOMP socket was down, so the ONLY signal
+    // that A hung up is Stream's remote-left, which lands HERE. The peer-
+    // hangup path (`_finishPeerHangup`) already re-arms the apn ring route,
+    // but this Stream-side teardown did NOT — so B was left ONLINE to Stream
+    // and the NEXT call rang over the (invisible-while-backgrounded) WS
+    // instead of the VoIP push. Re-arm here too: drop the Stream WS + STOMP +
+    // report OFFLINE so the next call rings via apn. No-op when foreground or
+    // still connected (see goOfflineForPushIfBackground).
+    unawaited(goOfflineForPushIfBackground());
   }
 
   Future<void> _handleStreamIncomingCall(Call call) async {
@@ -1144,6 +1156,12 @@ class CallSignalingService {
         _setActive(null);
       }
     });
+    // We ended an answered/outgoing call while possibly backgrounded (e.g. B
+    // tapped End on the native CallKit screen from a locked phone). The accept
+    // had connected the Stream WS on demand, so re-arm the apn ring route for
+    // the NEXT call — same fix as the peer-hangup + Stream-ended paths. No-op
+    // when foreground or while a call is still connected.
+    unawaited(goOfflineForPushIfBackground());
   }
 
   /// Clear any native incoming-call heads-up showing on THIS device for
@@ -1332,6 +1350,25 @@ class CallSignalingService {
     if (!Platform.isIOS) return true;
     try {
       final v = await _iosCallkit.invokeMethod<bool>('isAppForeground');
+      return v ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// iOS device-unlock probe (native `isDeviceUnlocked` →
+  /// `UIApplication.isProtectedDataAvailable` in AppDelegate). True when the
+  /// device is unlocked, false once it locks. Used alongside [_appForeground]
+  /// to decide whether the in-app overlay can actually be shown: after a
+  /// lock-screen CallKit accept the app reads "foreground" yet the user can
+  /// see nothing but the native call UI, so a still-LOCKED device must be
+  /// treated as background for the "go offline for push" decision (case #4).
+  /// Defaults to FALSE on channel error (the safe "treat as locked → go
+  /// offline so the next call still rings via push" answer). Non-iOS → true.
+  Future<bool> _deviceUnlocked() async {
+    if (!Platform.isIOS) return true;
+    try {
+      final v = await _iosCallkit.invokeMethod<bool>('isDeviceUnlocked');
       return v ?? false;
     } catch (_) {
       return false;
@@ -1825,13 +1862,24 @@ class CallSignalingService {
     // even briefly lets a quick 2nd call route over STOMP as an (invisible-
     // while-backgrounded) in-app overlay instead of the native CallKit ring.
     final fg = await _appForeground();
+    final unlocked = await _deviceUnlocked();
     // ignore: avoid_print
-    print('[CallSignaling] goOfflineForPushIfBackground: isAppForeground=$fg');
-    if (fg) return;
+    print('[CallSignaling] goOfflineForPushIfBackground: isAppForeground=$fg '
+        'deviceUnlocked=$unlocked');
+    // Stay online ONLY when the app is genuinely on screen AND the device is
+    // UNLOCKED — i.e. when the in-app overlay can actually be shown for the
+    // next call. CRITICAL (case #4): after B ACCEPTS a call from the LOCK
+    // SCREEN, CallKit activates the app process, so `isAppForeground` reads
+    // true even though the user never unlocked. If we stayed online there, the
+    // accept-time Stream WS stays up and the NEXT call rings over the
+    // (invisible-on-a-locked-device) WS instead of the native VoIP push — so
+    // B never sees the 2nd ring. A locked device can't show the in-app overlay
+    // anyway, so we must always go offline-for-push there.
+    if (fg && unlocked) return;
     // ignore: avoid_print
-    print('[CallSignaling] backgrounded ring resolved → going offline for push '
-        '(drop STOMP + Stream WS + report OFFLINE) so the next call rings via '
-        'apn, not the warm WS');
+    print('[CallSignaling] backgrounded/locked ring resolved → going offline '
+        'for push (drop STOMP + Stream WS + report OFFLINE) so the next call '
+        'rings via apn, not the warm WS');
     unawaited(transport.pause());
     unawaited(streamEngine.disconnectForBackground(force: true));
     unawaited(remote.reportBackground().catchError((Object _) {}));
@@ -1922,6 +1970,32 @@ class CallSignalingService {
         if (prior != null) {
           // Drop the prior log row so we don't leak entries.
           _logIdByCallId.remove(prior.callId);
+        }
+        // NATIVE-ONLY when off-screen. If the app is NOT genuinely
+        // foreground+unlocked, do NOT seed the in-app `incomingRinging`
+        // overlay from this STOMP invite. The two sockets drop independently
+        // on background: when only the Stream WS is down (and STOMP briefly
+        // lingers), the call is ALREADY ringing on the native CallKit screen
+        // (Stream's VoIP push) AND this STOMP `CallInviteEvent` fires too —
+        // seeding an invisible in-app overlay creates a second, conflicting
+        // call leg, and when the native screen is dismissed its end event
+        // auto-declines that overlay call (the reported "minimize → call gets
+        // declined" bug). Off-screen the NATIVE path owns everything: the ring
+        // (Stream push → CallKit), accept (CallkitEventHandler →
+        // handleIncomingFromPush), decline, and caller-cancel dismissal
+        // (watchBackgroundRingForCancel) — exactly as on a killed app, which
+        // never processes a STOMP invite at all. We also re-arm offline so the
+        // lingering STOMP/Stream WS can't route a follow-up call as an
+        // (invisible) in-app invite either. iOS-only; Android keeps seeding
+        // (its background call UX differs and is validated separately).
+        if (Platform.isIOS &&
+            !(await _appForeground() && await _deviceUnlocked())) {
+          // ignore: avoid_print
+          print('[CallSignaling] CallInviteEvent $callId arrived while '
+              'off-screen (background/locked) — NOT seeding in-app overlay; '
+              'native CallKit owns the ring (native-only)');
+          unawaited(goOfflineForPushIfBackground());
+          return;
         }
         final logged = await callLog.logStart(
           conversationId: conversationId,

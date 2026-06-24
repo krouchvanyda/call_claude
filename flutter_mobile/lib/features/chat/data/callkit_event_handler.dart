@@ -755,12 +755,31 @@ class CallkitEventHandler {
       );
       await signaling.hangup(finalStatus: ChatCallStatus.answered);
     } else if (active.state == CallSignalState.incomingRinging) {
-      // ignore: avoid_print
-      print(
-        '[CallkitEventHandler] _handleHangup: state still '
-        'incomingRinging — treating as decline',
-      );
-      await signaling.rejectIncoming();
+      // Don't convert a native-CallKit end into a DECLINE when WE just
+      // dismissed that native screen ourselves (foreground/overlay takeover or
+      // the suppression loop). On a minimize the call can arrive over BOTH the
+      // STOMP invite (→ in-app `incomingRinging`) AND the native CallKit push;
+      // dismissing the native screen then fires `actionCallEnded`, and turning
+      // that into `rejectIncoming()` auto-declines a call the user never
+      // touched (the reported "minimize → call gets declined" bug). Mirrors the
+      // guard already in `_handleNativeCallEnded`. A GENUINE decline never
+      // follows our own dismiss (there's no native screen left to decline), so
+      // real declines — including killed+locked — are unaffected.
+      if (signaling.recentlyDismissedNativeCallkit()) {
+        // ignore: avoid_print
+        print(
+          '[CallkitEventHandler] _handleHangup: incomingRinging end follows '
+          'our OWN native-CallKit dismiss — NOT rejecting (keeps the call '
+          'ringing instead of auto-declining)',
+        );
+      } else {
+        // ignore: avoid_print
+        print(
+          '[CallkitEventHandler] _handleHangup: state still '
+          'incomingRinging — treating as decline',
+        );
+        await signaling.rejectIncoming();
+      }
     } else if (active.state == CallSignalState.outgoingRinging) {
       // ignore: avoid_print
       print(

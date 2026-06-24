@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
+import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:permission_handler/permission_handler.dart';
 // ignore: depend_on_referenced_packages — pulled in transitively by
@@ -159,6 +161,21 @@ class StreamCallEngine {
   /// token if [_clientUserId] doesn't match the one we're being asked
   /// to join as (rare: sign-out → sign-in mid-session).
   String? _clientUserId;
+
+  /// Display name the live [_client] was built with. Tracked so a client
+  /// first built with only the bare userId (the cold-start warmUp-vs-
+  /// setIdentity race, when neither UsersCache nor ChatSettings had the name
+  /// yet) is REBUILT once the real name is available — otherwise Stream's
+  /// ring push keeps showing the caller's id ("9") instead of "Mr A" on the
+  /// callee's CallKit screen for the rest of the session.
+  String? _clientUserName;
+
+  /// Last apiKey + user token fetched from `/chats/calls/stream-token`. Cached
+  /// so [_reregisterApnDeviceAfterDisconnect] can re-create the push device via
+  /// a direct Stream REST call WITHOUT another backend round-trip (and without
+  /// the Stream WS, which we just dropped). Refreshed on every client build.
+  String? _lastApiKey;
+  String? _lastStreamToken;
 
   /// Live handle to the currently-joined Stream [Call] (or null when
   /// idle). The voice/video pages listen to this so they can mount a
@@ -1352,7 +1369,76 @@ class StreamCallEngine {
     // triangulate the ring-not-arriving bug. Re-gate once confirmed.
     // ignore: avoid_print
     print('[StreamCallEngine] warmUp() invoked');
+    // iOS "2nd call to a killed+locked callee: no ring" fix.
+    //
+    // A VoIP push wakes a killed app into a BACKGROUND process (the native
+    // CallKit ring shows on the lock screen, the Flutter isolate boots behind
+    // it). Splash → `markAuthenticated()` flips AuthSession false→true, which
+    // fires the cold-start `warmUp()` (see `_wireStreamWarmUpToAuth`). If that
+    // CONNECTS the Stream WS, this device becomes ONLINE to Stream — so the
+    // NEXT call's ring is delivered over the WS (which a backgrounded/locked
+    // app cannot render) instead of the APNs VoIP push that raises the native
+    // CallKit screen. Net effect: the 1st call rings (truly killed → offline),
+    // the 2nd does not (alive-in-background → online).
+    //
+    // So warmUp must connect ONLY when the app is genuinely on screen AND the
+    // device is UNLOCKED — i.e. the in-app overlay can actually be shown. The
+    // call paths that legitimately need a connection while backgrounded
+    // (accepting a ring) go through `_ensureClient` ON DEMAND, NOT warmUp, so
+    // they are unaffected; the resume handler calls warmUp when foreground, so
+    // the WS comes back the moment the user opens the app. We keep the push
+    // device registered (no `StreamVideo.reset`), so the genuinely-killed case
+    // still rings. iOS-only — Android keeps its existing eager warm-up.
+    //
+    // The UNLOCK check (case #4): after B ACCEPTS a call from the LOCK SCREEN,
+    // CallKit activates the app process, so `isAppForeground` reads true even
+    // though the user never unlocked. When that call ends, the lifecycle
+    // `resumed` + auth-transition both fire `warmUp()`; if it reconnected the
+    // Stream WS there, B would be ONLINE again and the next call would ring
+    // over the (invisible-on-a-locked-device) WS instead of the VoIP push.
+    // Treating a locked device as "do not connect" keeps the push route armed.
+    if (Platform.isIOS && !(await _appForeground() && await _deviceUnlocked())) {
+      // ignore: avoid_print
+      print('[StreamCallEngine] warmUp() SKIPPED — app backgrounded or device '
+          'locked; staying offline to Stream so the next call rings via the '
+          'VoIP push (accept still connects on demand via _ensureClient)');
+      return;
+    }
     await _ensureClient();
+  }
+
+  /// iOS genuine-foreground probe (native `isAppForeground` flag set in
+  /// AppDelegate on real `didBecomeActive` / `didEnterBackground`). True only
+  /// when the app is actually on screen; false for a killed/minimized/locked
+  /// cold-start. Defaults to FALSE on any channel error (the safe "we're not
+  /// confirmed foreground, so don't connect the Stream WS" answer). Mirrors
+  /// `CallSignalingService._appForeground`. Non-iOS always returns true.
+  static const MethodChannel _iosCallkitChannel =
+      MethodChannel('erp/ios_callkit');
+  Future<bool> _appForeground() async {
+    if (!Platform.isIOS) return true;
+    try {
+      final v = await _iosCallkitChannel.invokeMethod<bool>('isAppForeground');
+      return v ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// iOS device-unlock probe (native `isDeviceUnlocked` →
+  /// `UIApplication.isProtectedDataAvailable`). True when unlocked, false once
+  /// locked. Paired with [_appForeground] so a lock-screen CallKit accept —
+  /// which makes the app read "foreground" — is still treated as "do not
+  /// connect the Stream WS" (case #4). Defaults to FALSE on channel error
+  /// (safe "treat as locked → stay offline so the next call rings via push").
+  Future<bool> _deviceUnlocked() async {
+    if (!Platform.isIOS) return true;
+    try {
+      final v = await _iosCallkitChannel.invokeMethod<bool>('isDeviceUnlocked');
+      return v ?? false;
+    } catch (_) {
+      return false;
+    }
   }
 
   /// Disconnect Stream's WebSocket (but keep cached identity) when
@@ -1437,13 +1523,30 @@ class StreamCallEngine {
     }
     final client = _client;
     if (client == null) return;
+    // Snapshot the token BEFORE we null our state below so the re-register
+    // (which runs after disconnect) still has credentials.
+    final apiKey = _lastApiKey ?? '';
+    final streamToken = _lastStreamToken ?? '';
     try {
       // ignore: avoid_print
       print('[StreamCallEngine] disconnectForBackground: dropping WS '
-          'so Stream falls back to FCM push for incoming calls');
+          'so Stream falls back to FCM/APNs push for incoming calls');
       await _incomingCallSub?.cancel();
       _incomingCallSub = null;
-      await client.disconnect();
+      // `disconnect()` drops the WebSocket so Stream's coordinator marks this
+      // device offline → the next call rings via the APNs VoIP push, not the
+      // (invisible-while-backgrounded) WS event. Guard with a timeout: its
+      // internal `disconnectUser()` can stall while the WS is torn down, and
+      // we must not block the re-register that has to follow.
+      await client.disconnect().timeout(
+        const Duration(seconds: 4),
+        onTimeout: () {
+          // ignore: avoid_print
+          print('[StreamCallEngine] disconnectForBackground: disconnect() '
+              'timed out after 4s — proceeding to re-register the device');
+          return const Result.success(none);
+        },
+      );
     } catch (e) {
       // ignore: avoid_print
       print('[StreamCallEngine] disconnectForBackground failed: $e');
@@ -1453,7 +1556,100 @@ class StreamCallEngine {
     // incoming-call listener). One extra HTTP per resume — acceptable.
     _client = null;
     _clientUserId = null;
+    _clientUserName = null;
     _pendingIncomingCall = null;
+    // CRITICAL ("answered call ends → next call to a killed+locked callee shows
+    // no ring"): `disconnect()` above internally runs `unregisterDevice()` →
+    // server-side `deleteDevice()` (stream_video `_disconnect`). That REMOVES
+    // this device from Stream — so with the WS also down, Stream has NO route
+    // left to deliver the next call and it never rings. We want the WS DOWN but
+    // the device KEPT; the SDK bundles both into disconnect() and doesn't
+    // expose its internal closeConnection(). So we RE-ADD the apn/VoIP device
+    // here — OUTSIDE the try above so a disconnect throw/timeout can't skip it —
+    // via a direct REST call (no WS needed). iOS-only.
+    if (Platform.isIOS) {
+      await _reregisterApnDeviceAfterDisconnect(
+        apiKey: apiKey,
+        streamToken: streamToken,
+      );
+    }
+  }
+
+  /// Re-register the apn/VoIP push device that [StreamVideo.disconnect] just
+  /// deleted server-side (its `unregisterDevice()` → `deleteDevice()`), so a
+  /// backgrounded/locked callee can still receive the NEXT call's VoIP push
+  /// while its WebSocket stays down.
+  ///
+  /// We do NOT use the SDK's `addDevice` here: its `createDevice` first runs
+  /// `_waitUntilConnected`, which TIMES OUT (5 s) because we just dropped the
+  /// WS — the exact failure seen in the field. Instead we POST directly to
+  /// Stream's coordinator REST device endpoint, which only needs the api key +
+  /// user token (no WS). This mirrors `CoordinatorClientOpenApi.createDevice`:
+  ///   POST https://video.stream-io-api.com/video/devices?api_key=<key>
+  ///   headers: stream-auth-type: jwt · Authorization: <token>
+  ///   body:    {id, push_provider: apn, push_provider_name: apn, voip_token}
+  /// Best-effort; iOS-only. No-op when the PushKit VoIP token isn't available
+  /// yet (the next foreground/accept `_ensureApnDeviceRegistered` recovers it).
+  Future<void> _reregisterApnDeviceAfterDisconnect({
+    required String apiKey,
+    required String streamToken,
+  }) async {
+    if (!Platform.isIOS) return;
+    try {
+      final voip =
+          (await FlutterCallkitIncoming.getDevicePushTokenVoIP())?.toString() ??
+              '';
+      if (voip.isEmpty) {
+        // ignore: avoid_print
+        print('[StreamCallEngine] re-register apn after disconnect SKIPPED — '
+            'no VoIP token yet (next connect will register it)');
+        return;
+      }
+      // Use the cached apiKey/token captured at client-build time. Fall back to
+      // a fresh `/stream-token` fetch only if the cache is empty — a REST call
+      // to our backend, independent of the Stream WS we just closed.
+      var key = apiKey;
+      var token = streamToken;
+      if (key.isEmpty || token.isEmpty) {
+        final tokenJson = await remote.getStreamToken();
+        key = tokenJson['apiKey']?.toString() ?? '';
+        token = tokenJson['token']?.toString() ?? '';
+      }
+      if (key.isEmpty || token.isEmpty) {
+        // ignore: avoid_print
+        print('[StreamCallEngine] re-register apn after disconnect SKIPPED — '
+            'no stream token');
+        return;
+      }
+      final dio = Dio(BaseOptions(
+        baseUrl: 'https://video.stream-io-api.com',
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+        headers: <String, dynamic>{
+          'stream-auth-type': 'jwt',
+          'Authorization': token,
+          'Content-Type': 'application/json',
+        },
+      ));
+      final res = await dio.post<dynamic>(
+        '/video/devices',
+        queryParameters: <String, dynamic>{'api_key': key},
+        data: <String, dynamic>{
+          'id': voip,
+          'push_provider': 'apn',
+          'push_provider_name': 'apn',
+          'voip_token': true,
+        },
+      );
+      // ignore: avoid_print
+      print('[StreamCallEngine] re-registered apn device after disconnect via '
+          'direct REST (keeps VoIP push alive while offline) → '
+          'HTTP ${res.statusCode}');
+    } catch (e) {
+      // ignore: avoid_print
+      print('[StreamCallEngine] re-register apn after disconnect '
+          '(direct REST) threw: $e');
+    }
   }
 
   /// Leave the active Stream call (if any) and clear the cached
@@ -1671,8 +1867,43 @@ class StreamCallEngine {
       return;
     }
 
-    if (_client != null && _clientUserId == userId) return;
-    // Identity changed (or first use) — rebuild.
+    // Resolve the best display name we have NOW, BEFORE the reuse check.
+    //
+    // Look up our display name from the shared UsersCache (populated by
+    // /users/me on login). Without it Stream falls back to the bare userId in
+    // the VoIP notification body, so callees see a ringer saying "9 is
+    // calling…" instead of "Mr A is calling…". UsersCache is IN-MEMORY only,
+    // so it can be empty when this client is built before login finishes
+    // populating it (a warmUp-vs-setIdentity race). Fall back to the PERSISTED
+    // identity (`ChatSettings.userName`, written by setIdentity on login and
+    // reloaded on cold start) and backfill the cache for later lookups.
+    var displayName = UsersCache.instance.nameOf(userId) ?? '';
+    if (displayName.trim().isEmpty) {
+      final persisted = getIt<ChatSettings>().userName.trim();
+      if (persisted.isNotEmpty) {
+        displayName = persisted;
+        UsersCache.instance.put(userId: userId, name: persisted);
+      }
+    }
+    final haveRealName =
+        displayName.trim().isNotEmpty && displayName.trim() != userId;
+
+    if (_client != null && _clientUserId == userId) {
+      final builtWithRealName = _clientUserName != null &&
+          _clientUserName!.trim().isNotEmpty &&
+          _clientUserName!.trim() != userId;
+      // Reuse the live client UNLESS it was built without a real name AND we
+      // now have one — then fall through to rebuild so the ring push carries
+      // the caller's NAME, not the id (the reported "shows ID not name" bug).
+      // One-time churn: once rebuilt with a real name, `builtWithRealName`
+      // stays true so it never rebuilds for this reason again.
+      if (builtWithRealName || !haveRealName) return;
+      // ignore: avoid_print
+      print('[StreamCallEngine] rebuilding client — caller name upgraded '
+          'from "${_clientUserName ?? ''}" to "$displayName" so the ring '
+          'push shows the name, not the id');
+    }
+    // Identity changed (or first use, or name upgrade) — rebuild.
     try {
       await _client?.disconnect();
     } catch (_) {/* swallow */}
@@ -1684,27 +1915,6 @@ class StreamCallEngine {
     try {
       await StreamVideo.reset(disconnect: true);
     } catch (_) {/* swallow — reset has no effect if no instance */}
-    // Look up our display name from the shared UsersCache (populated
-    // by /users/me on login). Without this Stream falls back to the
-    // bare userId in the VoIP notification body, so callees see a
-    // ringer saying "10 is calling…" instead of "Mr A is calling…".
-    //
-    // UsersCache is IN-MEMORY only, so it can be empty when this client
-    // is built before login finishes populating it (a warmUp-vs-login
-    // race). Because the client is cached for the whole process, that
-    // leaves the caller stuck as the bare id ("11") for the session.
-    // Fall back to the PERSISTED identity (`ChatSettings.userName`,
-    // written by setIdentity on login and reloaded on cold start) so the
-    // real name is used regardless of warm-up timing. Backfill the cache
-    // so later lookups are consistent.
-    var displayName = UsersCache.instance.nameOf(userId) ?? '';
-    if (displayName.trim().isEmpty) {
-      final persisted = getIt<ChatSettings>().userName.trim();
-      if (persisted.isNotEmpty) {
-        displayName = persisted;
-        UsersCache.instance.put(userId: userId, name: persisted);
-      }
-    }
     final avatarUrl = UsersCache.instance.avatarOf(userId);
     // ignore: avoid_print
     print('[StreamCallEngine] building client as userId=$userId '
@@ -1741,6 +1951,9 @@ class StreamCallEngine {
       ),
     );
     _clientUserId = userId;
+    _clientUserName = displayName;
+    _lastApiKey = apiKey;
+    _lastStreamToken = token;
     // Install the foreground-service bridge so the mic/camera stay
     // alive when the user backgrounds the app mid-call. Without this,
     // Android 14+ silences the mic the instant the activity loses
@@ -2049,6 +2262,7 @@ class StreamCallEngine {
     } catch (_) {}
     _client = null;
     _clientUserId = null;
+    _clientUserName = null;
     _pendingIncomingCall = null;
   }
 }
