@@ -5,9 +5,10 @@ import flutter_local_notifications
 import stream_video_push_notification
 import flutter_callkit_incoming
 import CallKit
+import AVFAudio
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, CXCallObserverDelegate {
+@objc class AppDelegate: FlutterAppDelegate, CXCallObserverDelegate, CallkitIncomingAppDelegate {
   // Genuine on-screen state. Updated ONLY on real lifecycle transitions —
   // deliberately NOT on the transient `.inactive` that CallKit triggers when
   // it presents over a foreground app, and it starts `false` so a VoIP-push
@@ -270,5 +271,42 @@ import CallKit
     }
     lastIncomingCallByUuid.removeValue(forKey: uuid)
     callkitChannel?.invokeMethod("incomingCallEnded", arguments: payload)
+  }
+
+  // ── CallkitIncomingAppDelegate ───────────────────────────────────────────
+  // Conforming lets flutter_callkit_incoming's CXProvider forward its
+  // audio-session lifecycle to us. The accept/decline/end CEREMONY still runs
+  // in Dart (the plugin fires ACTION_CALL_ACCEPT on its event stream BEFORE
+  // calling onAccept, and our CXCallObserver drives the backend accept) — these
+  // action hooks only fulfil the CXAction so CallKit completes the transition.
+  //
+  // The reason we conform is `didActivateAudioSession`: on a LOCKED accept the
+  // Flutter `actionCallToggleAudioSession` event is unreliable, but this native
+  // callback fires the moment CallKit activates the shared AVAudioSession. We
+  // bridge it to Dart so the engine re-asserts the route + bounces the mic on
+  // the now-live session — the fix for "locked accept connects but is silent".
+  // We deliberately do NOT switch WebRTC to manual-audio mode: automatic mode
+  // is what makes the working foreground/outgoing/in-app calls audible, and
+  // this bridge is purely additive to the CallKit path.
+  func onAccept(_ call: flutter_callkit_incoming.Call, _ action: CXAnswerCallAction) {
+    action.fulfill()
+  }
+
+  func onDecline(_ call: flutter_callkit_incoming.Call, _ action: CXEndCallAction) {
+    action.fulfill()
+  }
+
+  func onEnd(_ call: flutter_callkit_incoming.Call, _ action: CXEndCallAction) {
+    action.fulfill()
+  }
+
+  func onTimeOut(_ call: flutter_callkit_incoming.Call) {}
+
+  func didActivateAudioSession(_ audioSession: AVAudioSession) {
+    callkitChannel?.invokeMethod("callkitAudioActivated", arguments: nil)
+  }
+
+  func didDeactivateAudioSession(_ audioSession: AVAudioSession) {
+    callkitChannel?.invokeMethod("callkitAudioDeactivated", arguments: nil)
   }
 }

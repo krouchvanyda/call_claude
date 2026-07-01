@@ -821,6 +821,34 @@ class CallkitEventHandler {
       '[CallkitEventHandler] native CXCallObserver → '
       '${call.method} · args=$args',
     );
+    // Audio-session lifecycle from the CallKit CXProvider (via
+    // CallkitIncomingAppDelegate.didActivate/didDeactivate). These carry NO
+    // payload, so handle them BEFORE the body-Map guard below. On a LOCKED
+    // accept this is the reliable "session is now live" signal the unreliable
+    // `actionCallToggleAudioSession` Flutter event fails to deliver — drive the
+    // engine's route re-assert + mic bounce so audio actually flows.
+    if (call.method == 'callkitAudioActivated') {
+      // ignore: avoid_print
+      print('[CallkitEventHandler] native CallKit didActivateAudioSession → '
+          'engine.onCallKitAudioSessionActivated()');
+      await _safelyGet<StreamCallEngine>()?.onCallKitAudioSessionActivated();
+      return null;
+    }
+    if (call.method == 'callkitAudioDeactivated') {
+      // CallKit released the shared session. If a call is STILL connected this
+      // is a back-to-back audio race (call #1's late deactivate pulling the
+      // session from under call #2) — re-assert on whatever session is now
+      // live; otherwise it's just the current call ending → no-op.
+      final liveConnected = _safelyGet<CallSignalingService>()?.current?.state ==
+          CallSignalState.connected;
+      if (liveConnected) {
+        // ignore: avoid_print
+        print('[CallkitEventHandler] native CallKit didDeactivateAudioSession '
+            'while still connected → re-asserting (back-to-back audio race)');
+        await _safelyGet<StreamCallEngine>()?.onCallKitAudioSessionActivated();
+      }
+      return null;
+    }
     // Normalise the payload: native sends `{uuid, call: {…extra.callCid…}}`
     // when the flutter_callkit_incoming entry is still listed, or just
     // `{uuid}` once it's gone. Both `_handleAccept` and `_handleHangup`
