@@ -950,14 +950,20 @@ class CallkitEventHandler {
     // FCM path (Android) uses `call_cid` (snake_case). Check both before the
     // `id` fallback — `id` is the CallKit UUID, never a Stream cid, so it's a
     // last resort only. (Additive: Android's `call_cid` still wins first.)
-    final callCid =
+    final rawCid =
         (params['call_cid'] ?? params['callCid'])?.toString() ??
         params['id']?.toString();
-    if (callCid == null || callCid.isEmpty) {
+    if (rawCid == null || rawCid.isEmpty) {
       // ignore: avoid_print
       print('[CallkitEventHandler] _handleAccept BAIL · missing call_cid');
       return;
     }
+    // Non-final so the UUID-only locked-accept path can rewrite it to the REAL
+    // Stream cid once recovered from the backend (see the recovery block after
+    // the dedupe below). Dedupe + `_acceptedAt` intentionally key off the
+    // ORIGINAL native identity (the UUID) — that's what the duplicate native
+    // events carry.
+    var callCid = rawCid;
     // Dedupe: on minimize→accept the live `actionCallAccept` event
     // AND the +2 s stale-CallKit recovery can BOTH fire for the same
     // call. The second pass would run another `acceptByCid` whose
@@ -998,6 +1004,42 @@ class CallkitEventHandler {
     if (Platform.isIOS) _acceptedAt[callCid] = DateTime.now();
     final isVideo = (params['type']?.toString() == '1');
     final signaling = _safelyGet<CallSignalingService>();
+
+    // LOCKED/killed accept recovery. On iOS the ring is presented by Stream's
+    // native VoIP push, whose CallKit call is owned by Stream's PushKit
+    // provider — so the accept payload that reaches us is frequently UUID-ONLY
+    // (no `extra.callCid`). Parsing that UUID would mis-read its leading hex as
+    // a stale numeric call id and POST /accept to a long-dead call, leaving the
+    // CALLER stuck on "Calling…" (exactly the reported bug). Detect the
+    // UUID-only case (no `:` AND not a pure numeric id) and recover the REAL
+    // ringing call straight from the authoritative backend before anything
+    // posts. If nothing is ringing, ABORT rather than corrupt a stale call.
+    // iOS-only + additive: Android's FCM path always carries `call_cid`, so
+    // `hasRealCid` is true there and this block is skipped.
+    if (Platform.isIOS && signaling != null) {
+      final hasRealCid =
+          callCid.contains(':') || _parseBackendCallId(callCid).isNotEmpty;
+      if (!hasRealCid) {
+        // ignore: avoid_print
+        print('[CallkitEventHandler] _handleAccept · UUID-only accept '
+            '($callCid) → recovering real ringing call from backend');
+        final rec = await signaling.recoverRingingInviteFromBackend();
+        if (rec != null) {
+          callCid = (rec.streamCallCid != null && rec.streamCallCid!.isNotEmpty)
+              ? rec.streamCallCid!
+              : 'default:erp-call-${rec.callId}';
+          // ignore: avoid_print
+          print('[CallkitEventHandler] _handleAccept · recovered real cid '
+              '$callCid (backend call id=${rec.callId})');
+        } else {
+          // ignore: avoid_print
+          print('[CallkitEventHandler] _handleAccept ABORT · UUID-only accept '
+              'and no ringing call on backend — a stale CallKit notification, '
+              'nothing to accept');
+          return;
+        }
+      }
+    }
 
     // iOS killed/locked cold-start safety net — fire the BACKEND accept
     // POST FIRST, decoupled from everything below. The reported bug: the
@@ -1475,8 +1517,13 @@ class CallkitEventHandler {
   /// verbatim if the format doesn't match.
   String _parseBackendCallId(String callCid) {
     final id = callCid.contains(':') ? callCid.split(':').last : callCid;
-    final match = RegExp(r'^(?:erp-call-)?(\d+)').firstMatch(id);
-    return match?.group(1) ?? id;
+    // ANCHORED at both ends: the token must be a pure number (optionally
+    // `erp-call-` prefixed). A bare CallKit UUID like "3CEBBE0D-74E2-…" must
+    // NOT match — otherwise its leading hex digit is read as a (stale) call id
+    // and we POST /accept to a long-dead call, stranding the caller on
+    // "Calling…". Returns '' on no-match so callers can detect "not a real id".
+    final match = RegExp(r'^(?:erp-call-)?(\d+)$').firstMatch(id);
+    return match?.group(1) ?? '';
   }
 
   /// `GetIt.I<T>()` throws if not yet registered (rare on cold-start

@@ -1074,6 +1074,69 @@ class CallSignalingService {
     return ended;
   }
 
+  /// Recover the REAL currently-ringing call for THIS user from the backend.
+  ///
+  /// Used by the locked/killed accept path when the native CallKit payload is
+  /// UUID-only — Stream's VoIP push presents the CallKit call, so no
+  /// `extra.callCid` reaches us, and parsing the bare UUID would mis-read its
+  /// leading hex as a stale numeric call id (POST /accept to a long-dead call
+  /// → caller stuck "Calling…"). This asks the authoritative backend instead:
+  /// list the recent calls, pick the newest RINGING one whose caller isn't us,
+  /// and return its real `{callId, streamCallCid}`. Returns null if nothing is
+  /// ringing (a stale CallKit notification) so the caller can abort safely.
+  Future<({String callId, String? streamCallCid})?>
+      recoverRingingInviteFromBackend() async {
+    final Map<String, dynamic> page;
+    try {
+      page = await remote.listCalls(page: 1, pageSize: 20);
+    } catch (e) {
+      // ignore: avoid_print
+      print('[CallSignaling] recoverRingingInvite · listCalls failed: $e');
+      return null;
+    }
+    List? items;
+    for (final key in ['items', 'content', 'data', 'rows', 'results']) {
+      final v = page[key];
+      if (v is List) {
+        items = v;
+        break;
+      }
+    }
+    if (items == null || items.isEmpty) return null;
+    Map? best;
+    DateTime? bestAt;
+    for (final item in items) {
+      if (item is! Map) continue;
+      if ((item['status']?.toString() ?? '').toUpperCase() != 'RINGING') {
+        continue;
+      }
+      // Skip our OWN outgoing call — we want the one someone is calling US on.
+      if ((item['callerId']?.toString() ?? '') == settings.userId) continue;
+      final started = DateTime.tryParse(item['startedAt']?.toString() ?? '');
+      if (bestAt == null ||
+          (started != null && started.isAfter(bestAt))) {
+        best = item;
+        bestAt = started ?? DateTime.now();
+      }
+    }
+    if (best == null) {
+      // ignore: avoid_print
+      print('[CallSignaling] recoverRingingInvite · no RINGING call for me '
+          '(stale CallKit notification)');
+      return null;
+    }
+    final id = best['id']?.toString() ?? '';
+    if (id.isEmpty) return null;
+    final cid = best['streamCallCid']?.toString();
+    // ignore: avoid_print
+    print('[CallSignaling] recoverRingingInvite · found ringing call id=$id '
+        'cid=$cid');
+    return (
+      callId: id,
+      streamCallCid: (cid == null || cid.isEmpty) ? null : cid,
+    );
+  }
+
   /// Pull the human-readable `message` out of a DioException body
   /// (the backend's standard envelope is `{success, message, …}`).
   /// Returns null if the error isn't a DioException with a JSON body.

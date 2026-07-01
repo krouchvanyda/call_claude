@@ -272,8 +272,9 @@ const String _callRejectBaseUrl = Environments.prodApiBaseUrl;
 String _parseBackendCallId(String callCid) {
   if (callCid.isEmpty) return '';
   final tail = callCid.contains(':') ? callCid.split(':').last : callCid;
-  final match = RegExp(r'^(?:erp-call-)?(\d+)').firstMatch(tail);
-  return match?.group(1) ?? tail;
+  // Anchored: a bare CallKit UUID must NOT mis-parse into a stale numeric id.
+  final match = RegExp(r'^(?:erp-call-)?(\d+)$').firstMatch(tail);
+  return match?.group(1) ?? '';
 }
 
 /// Unified push-state log so every entry point emits the same shape.
