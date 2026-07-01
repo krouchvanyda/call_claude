@@ -258,25 +258,20 @@ class StreamCallEngine {
       StreamController<StreamCallEndReason>.broadcast();
   StreamSubscription<CallState>? _activeStateSub;
 
-  /// When the active call last entered a reconnecting state. On
-  /// stream_video 1.4.x (Reconnect V2) a call briefly flips
-  /// `Connected → Reconnecting{fast} → Connected` right after join —
-  /// and while it churns, the participant roster can momentarily read
-  /// empty even though the peer is still there. The remote-left detector
-  /// in [_attachEndListener] must NOT treat that blip as "the peer left"
-  /// (the bug: locked/foreground accept connects, then tears itself down
-  /// ~3 s later). Stamped on every `CallStatusReconnecting`.
-  DateTime? _lastReconnectAt;
-
-  /// Debounce timer for a suspected remote-left that landed within
-  /// [_remoteLeftGrace] of a reconnect. Fires the real `remoteLeft`
-  /// only if the roster is STILL empty (and we're still connected)
-  /// after the grace window; cancelled the instant the remote reappears.
+  /// Debounce timer for a suspected remote-left. On stream_video 1.4.x the
+  /// participant roster can momentarily read empty even while the call stays
+  /// `Connected` — a transient right after join (the SDK re-syncs the
+  /// participant list) that is NOT a real leave. Firing `remoteLeft` on that
+  /// blip tore in-app calls down ~2–3 s after connect. We instead arm this
+  /// timer and only fire the real `remoteLeft` if the roster is STILL empty
+  /// (and we're still connected) after [_remoteLeftGrace]; it's cancelled the
+  /// instant the remote reappears. A genuine peer hangup also arrives over the
+  /// wire (`CallHangupEvent`) immediately, so this delay never affects real
+  /// hangups — it only suppresses the false transient.
   Timer? _remoteLeftDebounce;
 
-  /// How long after a reconnect a momentarily-empty roster is treated as
-  /// churn rather than a genuine leave. Stable calls (no recent reconnect)
-  /// still fire `remoteLeft` immediately — unchanged.
+  /// How long an empty roster must persist (while connected) before it's
+  /// treated as a genuine leave rather than a post-join sync blip.
   static const Duration _remoteLeftGrace = Duration(seconds: 6);
 
   /// Fires on the CALLER's side the first time a remote participant
@@ -1296,7 +1291,6 @@ class StreamCallEngine {
     _activeStateSub?.cancel();
     _remoteLeftDebounce?.cancel();
     _remoteLeftDebounce = null;
-    _lastReconnectAt = null;
     // Track whether a remote peer has EVER been present on this call.
     // Once one has, their later disappearance means "the other party
     // left" — which for a connected 1:1 is the ONLY end-signal we get:
@@ -1321,18 +1315,17 @@ class StreamCallEngine {
       // Remote-participant-left detection (peer hung up / left the call).
       // Fires only AFTER a remote was seen, so the transient "no remote
       // yet" window during our own join doesn't trip it; and only while
-      // WE are solidly connected/joined, so a reconnect blip that
-      // momentarily clears the participant list doesn't read as a leave.
-      // For groups this only fires when the LAST remote leaves (call
-      // emptied) — matching the last-person-out semantics.
-      // Stamp reconnect churn so the remote-left detector below can tell a
-      // genuine leave from a Reconnect-V2 roster blip (1.4.x flips
-      // Connected→Reconnecting→Connected right after join; the peer briefly
-      // drops off the participant list without actually leaving).
-      if (status is CallStatusReconnecting) {
-        _lastReconnectAt = DateTime.now();
-      }
-
+      // WE are solidly connected/joined.
+      //
+      // CRITICAL (1.4.x): the roster can momentarily read empty even while
+      // status stays `Connected` — a post-join sync blip, NOT a real leave
+      // (observed: in-app call tore down ~2.7 s after connect via a false
+      // `remoteLeft`). So we NEVER end immediately on an empty roster: we
+      // arm a debounce and only fire `remoteLeft` if the roster is STILL
+      // empty (and still connected) after [_remoteLeftGrace]. A blip
+      // re-populates and cancels it; a genuine leave stays empty and fires.
+      // Real peer hangups also arrive over the wire (`CallHangupEvent`)
+      // immediately, so this grace never delays an actual hangup.
       final hasRemote = s.callParticipants.any((p) => !p.isLocal);
       if (hasRemote) {
         sawRemoteParticipant = true;
@@ -1341,48 +1334,32 @@ class StreamCallEngine {
         _remoteLeftDebounce = null;
       } else if (sawRemoteParticipant &&
           (status is CallStatusConnected || status is CallStatusJoined)) {
-        // Roster emptied while we're connected. If a reconnect happened
-        // within the grace window, this is almost certainly churn — DEBOUNCE:
-        // only fire `remoteLeft` if the roster is STILL empty (and we're
-        // still connected/joined) after the grace elapses. A genuine leave
-        // stays empty and fires; a blip re-populates and cancels above.
-        final recentReconnect = _lastReconnectAt != null &&
-            DateTime.now().difference(_lastReconnectAt!) < _remoteLeftGrace;
-        if (recentReconnect) {
-          if (_remoteLeftDebounce == null) {
-            // ignore: avoid_print
-            print('[StreamCallEngine] roster emptied within '
-                '${_remoteLeftGrace.inSeconds}s of a reconnect — DEBOUNCING '
-                'remoteLeft (${_remoteLeftGrace.inSeconds}s) instead of ending');
-            _remoteLeftDebounce = Timer(_remoteLeftGrace, () {
-              _remoteLeftDebounce = null;
-              if (_activeCall != call) return;
-              final st = call.state.value.status;
-              final stillEmpty =
-                  !call.state.value.callParticipants.any((p) => !p.isLocal);
-              final stillConnected =
-                  st is CallStatusConnected || st is CallStatusJoined;
-              if (stillEmpty && stillConnected) {
-                // ignore: avoid_print
-                print('[StreamCallEngine] debounce elapsed · roster still '
-                    'empty + connected → firing onStreamCallEnded (remoteLeft)');
-                if (!_callEndedController.isClosed) {
-                  _callEndedController.add(StreamCallEndReason.remoteLeft);
-                }
-              } else {
-                // ignore: avoid_print
-                print('[StreamCallEngine] debounce elapsed · remote returned '
-                    'or call not connected → NOT ending (was reconnect churn)');
+        if (_remoteLeftDebounce == null) {
+          // ignore: avoid_print
+          print('[StreamCallEngine] roster emptied while connected — '
+              'DEBOUNCING remoteLeft ${_remoteLeftGrace.inSeconds}s '
+              '(likely a 1.4.x post-join sync blip, not a real leave)');
+          _remoteLeftDebounce = Timer(_remoteLeftGrace, () {
+            _remoteLeftDebounce = null;
+            if (_activeCall != call) return;
+            final st = call.state.value.status;
+            final stillEmpty =
+                !call.state.value.callParticipants.any((p) => !p.isLocal);
+            final stillConnected =
+                st is CallStatusConnected || st is CallStatusJoined;
+            if (stillEmpty && stillConnected) {
+              // ignore: avoid_print
+              print('[StreamCallEngine] debounce elapsed · roster still '
+                  'empty + connected → firing onStreamCallEnded (remoteLeft)');
+              if (!_callEndedController.isClosed) {
+                _callEndedController.add(StreamCallEndReason.remoteLeft);
               }
-            });
-          }
-          return;
-        }
-        // ignore: avoid_print
-        print('[StreamCallEngine] remote participant left (call emptied) '
-            '— firing onStreamCallEnded');
-        if (!_callEndedController.isClosed) {
-          _callEndedController.add(StreamCallEndReason.remoteLeft);
+            } else {
+              // ignore: avoid_print
+              print('[StreamCallEngine] debounce elapsed · remote returned '
+                  'or call not connected → NOT ending (was a sync blip)');
+            }
+          });
         }
         return;
       }
@@ -1833,7 +1810,6 @@ class StreamCallEngine {
     _activeStateSub = null;
     _remoteLeftDebounce?.cancel();
     _remoteLeftDebounce = null;
-    _lastReconnectAt = null;
     if (call == null) {
       // ignore: avoid_print
       print('[StreamCallEngine] leave() · no active call ref to leave — '
