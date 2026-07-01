@@ -848,46 +848,63 @@ class StreamCallEngine {
     // aborts the instant anything else (a teardown via endActiveCall, or a
     // newer call) bumps `_callSeq` past it.
     final mySeq = ++_callSeq;
-    // Retry on cold-start coordinator timeouts. The Stream SDK has a
-    // hardcoded 5 s ceiling in CoordinatorClientOpenApi._waitUntilConnected
-    // — on a CallKit-triggered cold-start the coordinator WS often
-    // isn't ready in time and the FIRST call.join() resolves but then
-    // the call asynchronously emits Disconnected{reason: Failure} via
-    // a TimeoutException. By the 2nd attempt the WS is up and join
-    // succeeds. Up to 3 attempts × 1 s back-off = ~3 s extra in the
-    // worst case, but resolves the cold-start race transparently.
-    const maxAttempts = 3;
-    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
-      if (mySeq != _callSeq) {
-        // ignore: avoid_print
-        print('[StreamCallEngine] acceptByCid superseded (call ended or a '
-            'newer call started) — aborting before attempt $attempt');
-        return;
+    // CRITICAL (locked/background accept): claim call-setup so the offline
+    // machinery stays suspended for the WHOLE accept. `join()` and
+    // `acceptPendingIncoming()` already do this; `acceptByCid` (the locked
+    // no-pending path) did NOT — so while `_ensureClient()` connected the
+    // Stream client in the background, `disconnectForBackground` fired, bumped
+    // `_callSeq`, and `_doAcceptByCid`'s post-`_ensureClient` supersede check
+    // silently returned BEFORE `call.join()` ever ran. Net effect on device:
+    // "connected as userId=N" then nothing — no join, no media leg, both sides
+    // silent. Setting the flag makes `disconnectForBackground` skip (it checks
+    // `_callSetupInProgress`) so the join completes. Cleared unconditionally in
+    // `finally` — a stuck-true flag would make the NEXT call ring over WS
+    // instead of APNs.
+    _callSetupInProgress = true;
+    try {
+      // Retry on cold-start coordinator timeouts. The Stream SDK has a
+      // hardcoded 5 s ceiling in CoordinatorClientOpenApi._waitUntilConnected
+      // — on a CallKit-triggered cold-start the coordinator WS often
+      // isn't ready in time and the FIRST call.join() resolves but then
+      // the call asynchronously emits Disconnected{reason: Failure} via
+      // a TimeoutException. By the 2nd attempt the WS is up and join
+      // succeeds. Up to 3 attempts × 1 s back-off = ~3 s extra in the
+      // worst case, but resolves the cold-start race transparently.
+      const maxAttempts = 3;
+      for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+        if (mySeq != _callSeq) {
+          // ignore: avoid_print
+          print('[StreamCallEngine] acceptByCid superseded (call ended or a '
+              'newer call started) — aborting before attempt $attempt');
+          return;
+        }
+        final ok = await _doAcceptByCid(
+          callCid: callCid,
+          isVideo: isVideo,
+          attempt: attempt,
+          maxAttempts: maxAttempts,
+          mySeq: mySeq,
+        );
+        if (ok) return;
+        if (mySeq != _callSeq) {
+          // ignore: avoid_print
+          print('[StreamCallEngine] acceptByCid superseded after attempt '
+              '$attempt — not retrying');
+          return;
+        }
+        if (attempt < maxAttempts) {
+          // ignore: avoid_print
+          print('[StreamCallEngine] acceptByCid attempt $attempt failed '
+              '— retrying after 1 s');
+          await Future.delayed(const Duration(seconds: 1));
+        }
       }
-      final ok = await _doAcceptByCid(
-        callCid: callCid,
-        isVideo: isVideo,
-        attempt: attempt,
-        maxAttempts: maxAttempts,
-        mySeq: mySeq,
-      );
-      if (ok) return;
-      if (mySeq != _callSeq) {
-        // ignore: avoid_print
-        print('[StreamCallEngine] acceptByCid superseded after attempt '
-            '$attempt — not retrying');
-        return;
-      }
-      if (attempt < maxAttempts) {
-        // ignore: avoid_print
-        print('[StreamCallEngine] acceptByCid attempt $attempt failed '
-            '— retrying after 1 s');
-        await Future.delayed(const Duration(seconds: 1));
-      }
+      // ignore: avoid_print
+      print('[StreamCallEngine] acceptByCid exhausted $maxAttempts '
+          'attempts for cid=$callCid');
+    } finally {
+      _callSetupInProgress = false;
     }
-    // ignore: avoid_print
-    print('[StreamCallEngine] acceptByCid exhausted $maxAttempts '
-        'attempts for cid=$callCid');
   }
 
   /// Single attempt of acceptByCid. Returns true if the accept + join
