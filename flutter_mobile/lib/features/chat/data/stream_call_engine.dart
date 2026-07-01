@@ -619,6 +619,9 @@ class StreamCallEngine {
     // reading) also forces the prior in-flight join() to notice that
     // a newer one started.
     final mySeq = ++_callSeq;
+    // ignore: avoid_print
+    print('[StreamCallEngine] join() ENTER · claimed seq=$mySeq · '
+        'cid=$streamCallCid shouldRing=$shouldRing');
     // Drop any stale in-flight ref from a prior attempt — this attempt
     // sets its own below once the Call is created.
     _inFlightCall = null;
@@ -639,11 +642,27 @@ class StreamCallEngine {
         }
         await leave();
       }
-      if (mySeq != _callSeq) return; // superseded
+      if (mySeq != _callSeq) {
+        // ignore: avoid_print
+        print('[StreamCallEngine] join SUPERSEDED before _ensureClient · '
+            'mySeq=$mySeq _callSeq=$_callSeq');
+        return; // superseded
+      }
       await _ensureClient();
-      if (mySeq != _callSeq) return; // superseded
+      if (mySeq != _callSeq) {
+        // ignore: avoid_print
+        print('[StreamCallEngine] join SUPERSEDED after _ensureClient · '
+            'mySeq=$mySeq _callSeq=$_callSeq — media leg will NOT start '
+            '(this is the silent-locked-call bug)');
+        return; // superseded
+      }
       final client = _client;
-      if (client == null) return;
+      if (client == null) {
+        // ignore: avoid_print
+        print('[StreamCallEngine] join ABORT · client==null after '
+            '_ensureClient');
+        return;
+      }
 
       // CID is `type:id` — split and feed both halves to the SDK.
       // Tolerant of a missing `:` (treat the whole string as the id
@@ -1197,6 +1216,9 @@ class StreamCallEngine {
       return false;
     }
     final mySeq = ++_callSeq;
+    // ignore: avoid_print
+    print('[StreamCallEngine] acceptPendingIncoming() ENTER · claimed '
+        'seq=$mySeq · cid=${call.callCid.value}');
     _callSetupInProgress = true;
     try {
       if (_activeCall != null) {
@@ -1735,6 +1757,9 @@ class StreamCallEngine {
   /// here would make them self-abort. They call [leave] (no bump).
   Future<void> endActiveCall() async {
     ++_callSeq;
+    // ignore: avoid_print
+    print('[StreamCallEngine] endActiveCall · bumped _callSeq=$_callSeq '
+        '(this supersedes any in-flight join/accept)');
     await leave();
   }
 
@@ -1759,6 +1784,8 @@ class StreamCallEngine {
   /// our own leg / foreground service is freed even if the reject fails.
   Future<void> cancelOutgoingRing() async {
     ++_callSeq;
+    // ignore: avoid_print
+    print('[StreamCallEngine] cancelOutgoingRing · bumped _callSeq=$_callSeq');
     // Grab the ref synchronously (before any await) so a concurrent
     // teardown can't null out `_activeCall` before we reject on it.
     final call = _activeCall ?? _inFlightCall ?? _preparedCall;
