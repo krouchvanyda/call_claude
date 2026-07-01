@@ -50,10 +50,14 @@ Dio buildDio(AppEnv env) {
   if (env.enableNetworkLogging) {
     dio.interceptors.add(
       PrettyDioLogger(
-        requestHeader: true,
-        requestBody: true,
+        // TEMP (call-audio debugging): bodies/headers OFF so the huge
+        // user-list + call-status poll payloads don't flood the console and
+        // bury the [StreamCallEngine]/[CallSignaling] call-flow logs. Revert
+        // to bodies-on once the locked-audio issue is resolved.
+        requestHeader: false,
+        requestBody: false,
         responseHeader: false,
-        responseBody: true,
+        responseBody: false,
         error: true,
         compact: true,
         maxWidth: 120,
