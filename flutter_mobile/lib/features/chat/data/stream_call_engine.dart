@@ -827,10 +827,29 @@ class StreamCallEngine {
             } on TimeoutException {
               // ignore: avoid_print
               print('[StreamCallEngine] getOrCreate TIMED OUT (attempt '
-                  '$gocAttempt/$maxGocAttempts) — coordinator WS likely not '
-                  'ready in locked background; ${gocAttempt < maxGocAttempts ? "retrying after 1s" : "giving up"}');
+                  '$gocAttempt/$maxGocAttempts) — coordinator WS suspended in '
+                  'locked background; ${gocAttempt < maxGocAttempts ? "reconnecting WS + retrying" : "giving up"}');
               if (gocAttempt < maxGocAttempts) {
-                await Future.delayed(const Duration(seconds: 1));
+                // The coordinator WS handshake completed on connect() but iOS
+                // suspended the socket during the ~8s getOrCreate wait, so the
+                // SDK's _waitUntilConnected sat on a dead socket. Re-issue
+                // connect() to force a FRESH WS handshake before retrying — a
+                // reconnected socket is what lets the next getOrCreate resolve
+                // (release build: media leg then forms). Same client, so the
+                // `call` ref stays valid.
+                try {
+                  final r = await _client
+                      ?.connect()
+                      .timeout(const Duration(seconds: 6));
+                  // ignore: avoid_print
+                  print('[StreamCallEngine] getOrCreate retry · reconnect() → '
+                      '${r?.isSuccess == true ? "WS reconnected" : "reconnect failed: $r"}');
+                } catch (e) {
+                  // ignore: avoid_print
+                  print('[StreamCallEngine] getOrCreate retry · reconnect '
+                      'threw/timed out: $e');
+                }
+                await Future.delayed(const Duration(milliseconds: 300));
               }
             }
           }
