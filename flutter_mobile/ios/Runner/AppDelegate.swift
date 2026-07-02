@@ -6,6 +6,7 @@ import stream_video_push_notification
 import flutter_callkit_incoming
 import CallKit
 import AVFAudio
+import StreamWebRTC
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, CXCallObserverDelegate, CallkitIncomingAppDelegate {
@@ -43,6 +44,22 @@ import AVFAudio
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     FirebaseApp.configure()
+
+    // WebRTC MANUAL AUDIO — the fix for "locked accept connects (call.join OK)
+    // but both sides are silent". In the default AUTOMATIC mode, WebRTC's audio
+    // device module activates the shared AVAudioSession itself; on the LOCK
+    // SCREEN iOS forbids an app from activating the session (device log:
+    // "Session activation failed"), so the capture/playback unit never starts →
+    // silence, even though the SFU media leg is healthy. In manual mode WebRTC
+    // does NOT touch the session on its own — we enable audio explicitly
+    // (RTCAudioSession.isAudioEnabled) once the session is live: via CallKit's
+    // didActivate on the lock screen (below), and via the erp/ios_callkit
+    // `setWebRtcAudioEnabled` channel after every join for the
+    // foreground/outgoing/in-app paths (which CallKit never activates). Must be
+    // set before any peer connection is built.
+    RTCAudioSession.sharedInstance().useManualAudio = true
+    RTCAudioSession.sharedInstance().isAudioEnabled = false
+
     if #available(iOS 10.0, *) {
         UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
     }
@@ -112,6 +129,23 @@ import AVFAudio
           // minimized accept reads false → the native screen is kept, which is
           // the only call UI the user can see there. Read-only.
           result(self.isAppForeground)
+        case "setWebRtcAudioEnabled":
+          // Manual-audio toggle from Dart. With useManualAudio=true (set in
+          // didFinishLaunching) WebRTC won't start its audio unit on its own;
+          // the engine calls this with `true` right after a successful join so
+          // audio flows on the foreground/outgoing/in-app paths (where CallKit
+          // never activates the session), and `false` on leave. On the lock
+          // screen the CallKit didActivate below ALSO flips it true the moment
+          // the OS activates the session — whichever happens first wins, both
+          // are idempotent. Enabling audio starts WebRTC's capture/playback
+          // unit on the now-live session.
+          if let on = (call.arguments as? [String: Any])?["enabled"] as? Bool {
+            RTCAudioSession.sharedInstance().isAudioEnabled = on
+            result(true)
+          } else {
+            result(FlutterError(code: "bad_args",
+                                message: "enabled bool required", details: nil))
+          }
         case "dismissIncoming":
           if let plugin = SwiftFlutterCallkitIncomingPlugin.sharedInstance {
             let calls = plugin.activeCalls()
@@ -303,10 +337,21 @@ import AVFAudio
   func onTimeOut(_ call: flutter_callkit_incoming.Call) {}
 
   func didActivateAudioSession(_ audioSession: AVAudioSession) {
+    // CallKit (whichever provider owns the locked call) just activated the
+    // shared session. In manual-audio mode WebRTC must be told the session is
+    // live AND enabled, or its audio unit never starts. Do it natively here so
+    // it happens the instant the session is up — before the Dart bridge round
+    // trip. Idempotent with the `setWebRtcAudioEnabled` channel.
+    let rtcSession = RTCAudioSession.sharedInstance()
+    rtcSession.audioSessionDidActivate(audioSession)
+    rtcSession.isAudioEnabled = true
     callkitChannel?.invokeMethod("callkitAudioActivated", arguments: nil)
   }
 
   func didDeactivateAudioSession(_ audioSession: AVAudioSession) {
+    let rtcSession = RTCAudioSession.sharedInstance()
+    rtcSession.isAudioEnabled = false
+    rtcSession.audioSessionDidDeactivate(audioSession)
     callkitChannel?.invokeMethod("callkitAudioDeactivated", arguments: nil)
   }
 }

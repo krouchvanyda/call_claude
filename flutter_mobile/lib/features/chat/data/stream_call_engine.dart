@@ -937,6 +937,11 @@ class StreamCallEngine {
         _attachPeerJoinedListener(call);
       }
       _attachEndListener(call);
+      // Manual-audio: WebRTC won't start its audio unit on its own
+      // (useManualAudio=true), so enable it now that we're joined. On the
+      // lock screen the native didActivate also flips this; enabling here
+      // covers the foreground/outgoing/in-app paths CallKit never activates.
+      unawaited(_setWebRtcAudioEnabled(true));
       unawaited(_ensureMicPublishing(call));
       // iOS: re-apply the speaker route now that the ADM is up (the page
       // set it before this join finished — see [_reassertIosAudioRoute]).
@@ -1245,6 +1250,7 @@ class StreamCallEngine {
       callNotifier.value = call;
       _pendingIncomingCall = null;
       _attachEndListener(call);
+      unawaited(_setWebRtcAudioEnabled(true));
       unawaited(_ensureMicPublishing(call));
       unawaited(_reassertIosAudioRoute());
       _consumePendingCallkitReassert(call);
@@ -1632,6 +1638,30 @@ class StreamCallEngine {
   /// `CallSignalingService._appForeground`. Non-iOS always returns true.
   static const MethodChannel _iosCallkitChannel =
       MethodChannel('erp/ios_callkit');
+
+  /// iOS-only: flip WebRTC's manual-audio switch (native
+  /// `RTCAudioSession.isAudioEnabled`). The AppDelegate sets
+  /// `useManualAudio = true` at launch, so WebRTC never starts its audio unit
+  /// on its own — we must enable it once a call is live. Called with `true`
+  /// right after every successful join (foreground/outgoing/in-app paths,
+  /// which CallKit never activates) and `false` on leave. On the lock screen
+  /// the native `didActivate` ALSO enables it the moment the OS activates the
+  /// session; both are idempotent. Best-effort; never throws. No-op off iOS.
+  Future<void> _setWebRtcAudioEnabled(bool enabled) async {
+    if (!Platform.isIOS) return;
+    try {
+      await _iosCallkitChannel.invokeMethod<bool>(
+        'setWebRtcAudioEnabled',
+        {'enabled': enabled},
+      );
+      // ignore: avoid_print
+      print('[StreamCallEngine] setWebRtcAudioEnabled($enabled) → sent');
+    } catch (e) {
+      // ignore: avoid_print
+      print('[StreamCallEngine] setWebRtcAudioEnabled($enabled) failed: $e');
+    }
+  }
+
   Future<bool> _appForeground() async {
     if (!Platform.isIOS) return true;
     try {
@@ -1936,6 +1966,10 @@ class StreamCallEngine {
   }
 
   Future<void> leave() async {
+    // Manual-audio: release WebRTC's audio unit as the call tears down so the
+    // session can deactivate and the next call starts clean. Idempotent with
+    // the native didDeactivate.
+    unawaited(_setWebRtcAudioEnabled(false));
     final call = _activeCall;
     // Capture + clear the in-flight ref up front so a call that's still
     // mid-`join()` (callee rejected while A was "Connecting…") gets its
