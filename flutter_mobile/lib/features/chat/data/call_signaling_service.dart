@@ -5,6 +5,7 @@ import 'package:erp_callkit/erp_callkit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter/widgets.dart' show WidgetsBinding, AppLifecycleState;
+import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart' show Call;
 
@@ -893,6 +894,70 @@ class CallSignalingService {
           'caller="$callerName" ($callerId) · '
           'backendCallId=$backendCallId · '
           'convId=$conversationId (resolved from ${call.id})');
+    }
+    // STAY-ONLINE-FOR-CALLS (iOS): this Stream WS incoming event only fires
+    // because we kept the WS connected in the background (see
+    // StreamCallEngine.keepStreamOnlineInBackground). Since the device is
+    // "online" to Stream, Stream does NOT send its native VoIP push — so WE
+    // render the ring via ErpCallKit (flutter_callkit_incoming). Crucially,
+    // the engine's WS listener has ALREADY set `_pendingIncomingCall` to this
+    // exact Call ref, so when the user accepts, `acceptIncoming` takes the
+    // `acceptPendingIncoming` path (accept()+join() on the ready ref) and
+    // AVOIDS the cold `getOrCreate` that can't complete on the locked screen.
+    // We do NOT seed the in-app overlay here (it would be invisible while
+    // backgrounded and create a conflicting second leg); the accept flow
+    // (_handleAccept → handleIncomingFromPush) seeds `_active` when the user
+    // actually answers. When foreground/unlocked, fall through to the normal
+    // in-app overlay path.
+    if (Platform.isIOS &&
+        !(await _appForeground() && await _deviceUnlocked())) {
+      final cid = call.callCid.value;
+      // ignore: avoid_print
+      print('[CallSignaling] Stream WS incoming while off-screen '
+          '(stay-online) → rendering CallKit ring ourselves for cid=$cid; '
+          'pending ref is set so accept uses acceptPendingIncoming (NO '
+          'getOrCreate)');
+      // iOS CallKit ring via flutter_callkit_incoming (erp_callkit is
+      // Android-only). Same param shape the FCM background handler uses so the
+      // accept/decline/dismiss paths already understand it. `id` is the
+      // deterministic CID→UUID so a later cancel/dismiss matches. `extra`
+      // carries the real Stream cid the accept handler reads.
+      final params = CallKitParams(
+        id: callkitIdForCid(cid),
+        nameCaller: callerName,
+        appName: 'ERP',
+        handle: callerId,
+        type: isVideo ? 1 : 0,
+        extra: <String, dynamic>{
+          'call_cid': cid,
+          'caller_id': callerId,
+          'caller_name': callerName,
+          'type': 'call.invite',
+          'conversationId': conversationId,
+        },
+        ios: const IOSParams(
+          iconName: 'CallKitLogo',
+          handleType: 'generic',
+          supportsVideo: true,
+          maximumCallGroups: 2,
+          maximumCallsPerCallGroup: 1,
+          audioSessionMode: 'default',
+          audioSessionActive: true,
+          audioSessionPreferredSampleRate: 44100.0,
+          audioSessionPreferredIOBufferDuration: 0.005,
+          supportsDTMF: false,
+          supportsHolding: false,
+          supportsGrouping: false,
+          supportsUngrouping: false,
+          ringtonePath: 'system_ringtone_default',
+        ),
+      );
+      unawaited(FlutterCallkitIncoming.showCallkitIncoming(params)
+          .catchError((Object e) {
+        // ignore: avoid_print
+        print('[CallSignaling] showCallkitIncoming failed: $e');
+      }));
+      return;
     }
     await handleIncomingFromPush(payload);
   }

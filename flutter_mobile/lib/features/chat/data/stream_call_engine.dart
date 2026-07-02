@@ -137,6 +137,22 @@ class StreamCallEngine {
   /// Android never reads it, so its call flow is unchanged.
   bool _callSetupInProgress = false;
 
+  /// iOS STAY-ONLINE-FOR-CALLS mode (the fix for "minimize + lock + accept is
+  /// silent"). When true, [disconnectForBackground] KEEPS the Stream WebSocket
+  /// connected while the app is backgrounded-but-alive, instead of dropping it
+  /// to force a VoIP push. Why: a cold `getOrCreate`/`join` at accept-time
+  /// cannot complete on the locked screen — iOS throttles the freshly-woken
+  /// app's cloud access (proven in device logs 2704-2712, every window). Only
+  /// the `acceptPendingIncoming` path avoids `getOrCreate`, and it needs
+  /// `state.incomingCall` to be populated — which only happens while the WS is
+  /// connected. So we stay online, render the incoming ring OURSELVES via
+  /// `ErpCallKit.showIncomingCall` (Stream won't send a native push to an
+  /// "online" device), and accept via the pending ref. When the app is truly
+  /// KILLED the process dies, the WS dies with it, and Stream falls back to the
+  /// VoIP push automatically — so the killed-app path is unaffected (and still
+  /// needs a server-side push relay to ever work; out of scope). iOS-only.
+  bool keepStreamOnlineInBackground = Platform.isIOS;
+
   /// iOS-only: a Stream [Call] that's already been `getOrCreate`d (the
   /// coordinator handshake that fetches SFU credentials) WHILE the phone
   /// was still ringing, but NOT yet joined. When the callee accepts,
@@ -1737,6 +1753,20 @@ class StreamCallEngine {
         _activeCall = null;
         callNotifier.value = null;
       }
+    }
+    // STAY-ONLINE-FOR-CALLS (iOS): keep the Stream WS connected while the app
+    // is alive so `state.incomingCall` can deliver the next ring with a ready
+    // Call ref — accept then uses `acceptPendingIncoming` (no cold getOrCreate,
+    // which can't complete on the locked screen). We rendered the ring
+    // ourselves via ErpCallKit (see `_handleStreamIncomingCall`), so dropping
+    // the WS is no longer needed to get a native ringer. The stale-call clear
+    // above still runs so a leaked _activeCall can't linger.
+    if (keepStreamOnlineInBackground && Platform.isIOS) {
+      // ignore: avoid_print
+      print('[StreamCallEngine] disconnectForBackground: KEEPING Stream WS '
+          'alive (stay-online-for-calls) — incoming rings arrive via '
+          'state.incomingCall so accept avoids the throttled cold getOrCreate');
+      return;
     }
     // iOS: a call is mid-setup (outgoing join / in-app accept) but not
     // yet promoted to _activeCall. Dropping the Stream WS now cancels
