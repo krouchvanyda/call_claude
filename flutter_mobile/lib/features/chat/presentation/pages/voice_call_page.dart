@@ -30,9 +30,22 @@ import '../widgets/chat_avatar.dart';
 /// Replacing the connected branch with real WebRTC (offer/answer +
 /// ICE via the same transport) is the next step.
 class VoiceCallPage extends StatefulWidget {
-  const VoiceCallPage({super.key, required this.conversationId});
+  const VoiceCallPage({
+    super.key,
+    required this.conversationId,
+    this.isOutgoing = false,
+  });
 
   final String conversationId;
+
+  /// True ONLY when the user explicitly started this call (tapped a call /
+  /// redial button). False for every incoming/accept push. The page places an
+  /// outgoing invite ONLY when this is true — never merely because there's no
+  /// active call. Inferring "outgoing" from the absence of a call was the
+  /// cause of the "reopen app after a locked call → it dials the peer back"
+  /// bug: a lingering/restored call route re-mounted with no active call and
+  /// silently placed a new outgoing call.
+  final bool isOutgoing;
 
   /// Tracks whether a VoiceCallPage is currently mounted, so the
   /// auto-push fallback in IncomingCallOverlay can detect when the
@@ -84,7 +97,7 @@ class _VoiceCallPageState extends State<VoiceCallPage>
         _stage = _CallStage.connected;
         _startTicker();
       }
-    } else {
+    } else if (widget.isOutgoing) {
       _placedInvite = true;
       // Gate the outgoing call on microphone permission (iOS-only — Android
       // unchanged). Without mic the Stream join fails silently and the ring
@@ -92,6 +105,29 @@ class _VoiceCallPageState extends State<VoiceCallPage>
       // valid Overlay.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_placeOutgoingWithPermission());
+      });
+    } else {
+      // No matching active call AND this wasn't a user-initiated outgoing
+      // call — this is a spurious/restored mount (e.g. a lingering call route
+      // re-materialised after the previous call ended, or app resume). Do NOT
+      // place a call. Give a short grace for a legit incoming `_active` to
+      // arrive (accept-path race), then pop if none does — otherwise we'd
+      // silently dial the peer back (the reported bug).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future<void>.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          final cur = _signaling.current;
+          final hasCallForThisConv = cur != null &&
+              cur.conversationId == widget.conversationId &&
+              cur.state != CallSignalState.ended;
+          if (!hasCallForThisConv) {
+            // ignore: avoid_print
+            print('[VoiceCallPage] spurious mount (no outgoing intent, no '
+                'active call for conv=${widget.conversationId}) — popping '
+                'instead of placing a call');
+            Navigator.of(context).maybePop();
+          }
+        });
       });
     }
   }

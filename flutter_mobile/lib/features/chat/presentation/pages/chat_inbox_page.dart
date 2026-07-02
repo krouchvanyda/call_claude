@@ -1296,8 +1296,10 @@ class _RecentCallTile extends StatelessWidget {
         onTap: () => ConfigRouter.pushPageAnimation(
           context,
           isVideo
-              ? VideoCallPage(conversationId: log.conversationId)
-              : VoiceCallPage(conversationId: log.conversationId),
+              ? VideoCallPage(
+                  conversationId: log.conversationId, isOutgoing: true)
+              : VoiceCallPage(
+                  conversationId: log.conversationId, isOutgoing: true),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

@@ -148,8 +148,10 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
     ConfigRouter.pushPageAnimation(
       context,
       isVideo
-          ? VideoCallPage(conversationId: widget.conversationId)
-          : VoiceCallPage(conversationId: widget.conversationId),
+          ? VideoCallPage(
+              conversationId: widget.conversationId, isOutgoing: true)
+          : VoiceCallPage(
+              conversationId: widget.conversationId, isOutgoing: true),
     );
   }
 
@@ -625,12 +627,14 @@ class _ChatConversationPageState extends State<ChatConversationPage> {
     if (log.callType == ChatCallType.video) {
       ConfigRouter.pushPageAnimation(
         context,
-        VideoCallPage(conversationId: widget.conversationId),
+        VideoCallPage(
+            conversationId: widget.conversationId, isOutgoing: true),
       );
     } else {
       ConfigRouter.pushPageAnimation(
         context,
-        VoiceCallPage(conversationId: widget.conversationId),
+        VoiceCallPage(
+            conversationId: widget.conversationId, isOutgoing: true),
       );
     }
   }

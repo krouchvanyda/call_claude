@@ -316,7 +316,7 @@ class _QuickActions extends StatelessWidget {
             label: 'Voice call',
             onTap: () => ConfigRouter.pushPageAnimation(
               context,
-              VoiceCallPage(conversationId: conversation.id),
+              VoiceCallPage(conversationId: conversation.id, isOutgoing: true),
             ),
           ),
           const _Hairline(),
@@ -326,7 +326,7 @@ class _QuickActions extends StatelessWidget {
             label: 'Video call',
             onTap: () => ConfigRouter.pushPageAnimation(
               context,
-              VideoCallPage(conversationId: conversation.id),
+              VideoCallPage(conversationId: conversation.id, isOutgoing: true),
             ),
           ),
           const _Hairline(),
@@ -596,8 +596,8 @@ class _CallHistoryRow extends StatelessWidget {
       onTap: () => ConfigRouter.pushPageAnimation(
         context,
         isVideo
-            ? VideoCallPage(conversationId: conversationId)
-            : VoiceCallPage(conversationId: conversationId),
+            ? VideoCallPage(conversationId: conversationId, isOutgoing: true)
+            : VoiceCallPage(conversationId: conversationId, isOutgoing: true),
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

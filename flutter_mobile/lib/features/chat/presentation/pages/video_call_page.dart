@@ -24,9 +24,20 @@ import '../widgets/chat_avatar.dart';
 /// up. Media streams are still placeholders; replacing them with
 /// `RTCVideoRenderer` is the next step.
 class VideoCallPage extends StatefulWidget {
-  const VideoCallPage({super.key, required this.conversationId});
+  const VideoCallPage({
+    super.key,
+    required this.conversationId,
+    this.isOutgoing = false,
+  });
 
   final String conversationId;
+
+  /// True ONLY when the user explicitly started this call (tapped a call /
+  /// redial button). False for every incoming/accept push. The page places an
+  /// outgoing invite ONLY when this is true — never merely because there's no
+  /// active call (that inference caused the "reopen app → dials the peer back"
+  /// bug when a lingering call route re-mounted).
+  final bool isOutgoing;
 
   /// Tracks whether a VideoCallPage is currently mounted. Used by
   /// IncomingCallOverlay's auto-push fallback to detect whether the
@@ -65,13 +76,15 @@ class _VideoCallPageState extends State<VideoCallPage>
     _signaling.activeCallListenable.addListener(_onActiveCallChanged);
     WidgetsBinding.instance.addObserver(this);
     final existing = _signaling.current;
-    if (existing != null &&
-        existing.conversationId == widget.conversationId &&
-        existing.state == CallSignalState.connected) {
+    final matchesActive =
+        existing != null && existing.conversationId == widget.conversationId;
+    if (matchesActive && existing.state == CallSignalState.connected) {
       _connected = true;
       _startTicker();
-    } else if (existing == null ||
-        existing.conversationId != widget.conversationId) {
+    } else if (matchesActive) {
+      // Existing incoming/connecting call for this conversation — attach.
+      _status = 'Ringing…';
+    } else if (widget.isOutgoing) {
       // Place a new outgoing video invite — gated on mic + camera
       // permission (iOS-only; Android unchanged). Without them the Stream
       // join fails silently and the ring never reaches the peer.
@@ -80,7 +93,26 @@ class _VideoCallPageState extends State<VideoCallPage>
         if (mounted) unawaited(_placeOutgoingWithPermission());
       });
     } else {
+      // No matching active call AND not a user-initiated outgoing call — a
+      // spurious/restored mount. Do NOT dial. Grace for a legit incoming
+      // `_active`, then pop if none arrives (see VoiceCallPage for the bug).
       _status = 'Ringing…';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future<void>.delayed(const Duration(seconds: 2), () {
+          if (!mounted) return;
+          final cur = _signaling.current;
+          final hasCallForThisConv = cur != null &&
+              cur.conversationId == widget.conversationId &&
+              cur.state != CallSignalState.ended;
+          if (!hasCallForThisConv) {
+            // ignore: avoid_print
+            print('[VideoCallPage] spurious mount (no outgoing intent, no '
+                'active call for conv=${widget.conversationId}) — popping '
+                'instead of placing a call');
+            Navigator.of(context).maybePop();
+          }
+        });
+      });
     }
     _resetHideTimer();
   }
