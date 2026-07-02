@@ -412,6 +412,39 @@ class CallkitEventHandler {
         );
         return;
       }
+      // STALE-ENTRY GUARD (the "reopen app after a locked call → it calls
+      // back" bug). Our stay-online path shows the ring via
+      // showCallkitIncoming; after the call ENDS that entry can linger in
+      // activeCalls() with isAccepted=true (endAllCalls doesn't always evict an
+      // accepted call synchronously). The _handledCallCids dedup misses it
+      // because the original accept keyed off the CXCallObserver UUID while
+      // this entry carries the real cid — so without this guard we
+      // re-synthesise an accept for an already-ended call, which re-opens the
+      // call page with no live signaling call and places a NEW OUTGOING call
+      // back to the caller. Only re-accept if the backend still has the call
+      // live; otherwise evict the stale CallKit entry and stop.
+      final signaling = _safelyGet<CallSignalingService>();
+      final extra = first['extra'];
+      final staleCid = (extra is Map
+              ? (extra['call_cid'] ?? extra['callCid'])?.toString()
+              : null) ??
+          (first['call_cid'] ?? first['callCid'] ?? first['id'])?.toString() ??
+          '';
+      final staleBackendId = _parseBackendCallId(staleCid);
+      if (signaling != null && staleBackendId.isNotEmpty) {
+        final live = await signaling.isCallLive(staleBackendId);
+        if (!live) {
+          // ignore: avoid_print
+          print(
+            '[CallkitEventHandler] stale CallKit entry for call '
+            '$staleBackendId is NOT live on the backend (already ended) — '
+            'evicting it, NOT re-accepting (prevents phantom call-back)',
+          );
+          unawaited(
+              FlutterCallkitIncoming.endAllCalls().catchError((Object _) {}));
+          return;
+        }
+      }
       // ignore: avoid_print
       print(
         '[CallkitEventHandler] user already tapped Accept on '

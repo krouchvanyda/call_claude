@@ -1249,6 +1249,27 @@ class CallSignalingService {
     );
   }
 
+  /// Whether the backend still considers [callId] LIVE (RINGING or ANSWERED,
+  /// not a terminal ENDED/MISSED/REJECTED/NO_ANSWER). Used on resume to avoid
+  /// re-accepting a CallKit entry that lingered in `activeCalls()` after the
+  /// call already ended — which otherwise spuriously re-opens the call page
+  /// and places a NEW outgoing call back to the caller (the "reopen app after
+  /// a locked call → it calls back" bug). Returns false on any error / unknown
+  /// status so we never re-accept on uncertainty.
+  Future<bool> isCallLive(String callId) async {
+    final n = int.tryParse(callId);
+    if (n == null) return false;
+    try {
+      final dto = await remote.getCall(n);
+      final status = (dto['status']?.toString() ?? '').toUpperCase();
+      return status == 'RINGING' || status == 'ANSWERED';
+    } catch (e) {
+      // ignore: avoid_print
+      print('[CallSignaling] isCallLive($callId) check failed: $e');
+      return false;
+    }
+  }
+
   /// Pull the human-readable `message` out of a DioException body
   /// (the backend's standard envelope is `{success, message, …}`).
   /// Returns null if the error isn't a DioException with a JSON body.
