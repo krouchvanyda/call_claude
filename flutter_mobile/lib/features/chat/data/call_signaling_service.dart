@@ -245,6 +245,15 @@ class CallSignalingService {
   /// caller momentarily missed the frame). See [_startRingingHeartbeat].
   Timer? _ringingHeartbeat;
 
+  /// Safety timer for the off-screen (locked/background) prepare-during-ring
+  /// path. When a VoIP-push ring warms the Stream media leg but the user never
+  /// accepts (missed / caller cancels without a delivered hangup), we must
+  /// re-arm "offline for push" — otherwise the warmed Stream WS stays up and
+  /// the NEXT call would ring over the (invisible-while-backgrounded) WS
+  /// instead of the native VoIP push. Cancelled the moment the call is
+  /// accepted (state → connected) or the prepare is consumed.
+  Timer? _bgRingRearmTimer;
+
   /// The call id the ring heartbeat is currently polling. The caller's
   /// id swaps mid-ring from a placeholder (`call-<me>-<ts>`) to the
   /// backend numeric id, and only the numeric id is pollable — so we
@@ -260,6 +269,7 @@ class CallSignalingService {
     _deferredHangupTimer?.cancel();
     _connectedHeartbeat?.cancel();
     _ringingHeartbeat?.cancel();
+    _bgRingRearmTimer?.cancel();
     activeCallListenable.dispose();
   }
 
@@ -1683,6 +1693,10 @@ class CallSignalingService {
 
   /// Callee tapped Accept on the incoming sheet.
   Future<void> acceptIncoming() async {
+    // The user is accepting — cancel the off-screen prepare re-arm so it can't
+    // tear down the warmed Stream call or force us offline mid-accept.
+    _bgRingRearmTimer?.cancel();
+    _bgRingRearmTimer = null;
     // ignore: avoid_print
     print('[CallSignaling] acceptIncoming ENTER · active=${_active?.callId} '
         'state=${_active?.state} streamCid=${_active?.streamCallCid}');
@@ -1912,6 +1926,35 @@ class CallSignalingService {
   ///   • genuinely FOREGROUND (native `isAppForeground`) → skip; the in-app
   ///     overlay owns the next ring there.
   ///   • a call is still CONNECTED → skip; never tear down a live call.
+  /// Safety re-arm for the off-screen prepare-during-ring path (see the
+  /// off-screen `CallInviteEvent` branch). We warmed the Stream media leg in
+  /// the VoIP-push window and deliberately stayed online so accept can JOIN
+  /// it. If the user never accepts within [_bgRingRearmAfter], drop the warmed
+  /// client + go offline so the NEXT call still rings via the native VoIP
+  /// push. Cancelled the instant the call connects (accept) — see
+  /// [_setActive] / the accept path.
+  static const Duration _bgRingRearmAfter = Duration(seconds: 45);
+  void _armBackgroundRingRearm(String callId) {
+    _bgRingRearmTimer?.cancel();
+    _bgRingRearmTimer = Timer(_bgRingRearmAfter, () async {
+      _bgRingRearmTimer = null;
+      // If this ring turned into a live/connecting call, the accept path owns
+      // teardown — do nothing.
+      final a = _active;
+      if (a != null &&
+          a.callId == callId &&
+          (a.state == CallSignalState.connected ||
+              a.state == CallSignalState.incomingRinging)) {
+        return;
+      }
+      // ignore: avoid_print
+      print('[CallSignaling] bg-ring re-arm: call $callId never accepted — '
+          'discarding warmed Stream call + going offline for push');
+      unawaited(streamEngine.discardPrepared());
+      unawaited(goOfflineForPushIfBackground());
+    });
+  }
+
   /// iOS-only; Android keeps its own lifecycle background path.
   Future<void> goOfflineForPushIfBackground() async {
     if (!Platform.isIOS) return;
@@ -2056,8 +2099,22 @@ class CallSignalingService {
           // ignore: avoid_print
           print('[CallSignaling] CallInviteEvent $callId arrived while '
               'off-screen (background/locked) — NOT seeding in-app overlay; '
-              'native CallKit owns the ring (native-only)');
-          unawaited(goOfflineForPushIfBackground());
+              'native CallKit owns the ring. WARMING the Stream media leg NOW '
+              '(VoIP-push window) so accept can JOIN a prepared call instead of '
+              'a cold getOrCreate on the throttled post-accept window.');
+          // STREAM-NATIVE accept, step 1: do the coordinator round-trip
+          // (getOrCreate) HERE, in the guaranteed VoIP-push execution window,
+          // where iOS still lets the freshly-woken app reach Stream's cloud.
+          // At accept time (which can be 5-15s later, after iOS has throttled
+          // the app's internet), a cold getOrCreate reliably TIMES OUT (device
+          // logs 2704-2710) → no media leg → silence. join()'s prepared-call
+          // fast-path (skipGetOrCreate) then reuses this ref so accept only has
+          // to run the SFU join. We deliberately do NOT goOfflineForPushIfBg
+          // here — that would drop the client we're warming; the call's end /
+          // hangup / cancel paths re-arm offline afterwards, and the safety
+          // timer below re-arms if this ring is never accepted.
+          unawaited(_prepareIncomingStream(callId, callType));
+          _armBackgroundRingRearm(callId);
           return;
         }
         final logged = await callLog.logStart(

@@ -595,7 +595,13 @@ class StreamCallEngine {
         callType: StreamCallType.fromString(callType),
         id: callId,
       );
-      final res = await call.getOrCreate(ringing: false, video: isVideo);
+      // watch:false — same locked-bg reason as the callee join path: the
+      // default coordinator WS event-watch stalls when iOS suspends the
+      // freshly push-woken socket. We only need the call fetched/created,
+      // not watched (state is tracked via the join's own listeners).
+      final res = await call
+          .getOrCreate(ringing: false, video: isVideo, watch: false)
+          .timeout(const Duration(seconds: 8));
       if (mySeq != _callSeq) {
         try { await call.leave(); } catch (_) {}
         return;
