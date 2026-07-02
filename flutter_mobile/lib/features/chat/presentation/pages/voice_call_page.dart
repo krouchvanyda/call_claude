@@ -63,6 +63,10 @@ enum _CallStage { calling, ringing, connected, ended }
 class _VoiceCallPageState extends State<VoiceCallPage>
     with WidgetsBindingObserver {
   _CallStage _stage = _CallStage.calling;
+  // Spurious/restored mount with no active call and no outgoing intent — we
+  // render nothing and pop immediately so the user never sees a bogus
+  // "Calling…" screen (the reopen-after-locked-call ghost). See initState.
+  bool _spurious = false;
   bool _muted = false;
   // Default speaker ON for voice calls so the user can hear without
   // putting the phone to their ear (especially important when testing
@@ -108,26 +112,21 @@ class _VoiceCallPageState extends State<VoiceCallPage>
       });
     } else {
       // No matching active call AND this wasn't a user-initiated outgoing
-      // call — this is a spurious/restored mount (e.g. a lingering call route
-      // re-materialised after the previous call ended, or app resume). Do NOT
-      // place a call. Give a short grace for a legit incoming `_active` to
-      // arrive (accept-path race), then pop if none does — otherwise we'd
-      // silently dial the peer back (the reported bug).
+      // call — this is a spurious/restored mount (a lingering call route
+      // re-materialised after the previous call ended / on app resume). Every
+      // legit incoming push seeds `_active` BEFORE pushing the page (so
+      // `existing` matches above), so reaching here means there is genuinely
+      // no call. Render nothing and pop on the first frame — do NOT place a
+      // call and do NOT flash a bogus "Calling…" screen (the reported ghost
+      // that also swallowed the End button).
+      _spurious = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future<void>.delayed(const Duration(seconds: 2), () {
-          if (!mounted) return;
-          final cur = _signaling.current;
-          final hasCallForThisConv = cur != null &&
-              cur.conversationId == widget.conversationId &&
-              cur.state != CallSignalState.ended;
-          if (!hasCallForThisConv) {
-            // ignore: avoid_print
-            print('[VoiceCallPage] spurious mount (no outgoing intent, no '
-                'active call for conv=${widget.conversationId}) — popping '
-                'instead of placing a call');
-            Navigator.of(context).maybePop();
-          }
-        });
+        if (!mounted) return;
+        // ignore: avoid_print
+        print('[VoiceCallPage] spurious mount (no outgoing intent, no active '
+            'call for conv=${widget.conversationId}) — popping immediately, '
+            'NOT placing a call');
+        Navigator.of(context).maybePop();
       });
     }
   }
@@ -337,6 +336,11 @@ class _VoiceCallPageState extends State<VoiceCallPage>
 
   @override
   Widget build(BuildContext context) {
+    // Spurious/restored mount — render a plain dark screen (no "Calling…", no
+    // controls) for the single frame before the post-frame pop fires.
+    if (_spurious) {
+      return const Scaffold(backgroundColor: Color(0xFF0F1117));
+    }
     return Scaffold(
       backgroundColor: const Color(0xFF0F1117),
       body: StreamBuilder<ChatConversation?>(

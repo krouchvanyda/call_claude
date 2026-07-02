@@ -66,6 +66,10 @@ class _VideoCallPageState extends State<VideoCallPage>
   late final StreamCallEngine _engine;
   bool _connected = false;
   String _status = 'Connecting…';
+  // Spurious/restored mount with no active call and no outgoing intent — render
+  // nothing and pop immediately (see VoiceCallPage). Prevents the bogus
+  // "Calling…" ghost after reopening the app post-locked-call.
+  bool _spurious = false;
 
   @override
   void initState() {
@@ -94,24 +98,18 @@ class _VideoCallPageState extends State<VideoCallPage>
       });
     } else {
       // No matching active call AND not a user-initiated outgoing call — a
-      // spurious/restored mount. Do NOT dial. Grace for a legit incoming
-      // `_active`, then pop if none arrives (see VoiceCallPage for the bug).
-      _status = 'Ringing…';
+      // spurious/restored mount (see VoiceCallPage). Legit incoming pushes
+      // seed `_active` before the push, so reaching here means no call. Render
+      // nothing and pop on the first frame — do NOT dial, do NOT flash a bogus
+      // "Calling…" screen.
+      _spurious = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future<void>.delayed(const Duration(seconds: 2), () {
-          if (!mounted) return;
-          final cur = _signaling.current;
-          final hasCallForThisConv = cur != null &&
-              cur.conversationId == widget.conversationId &&
-              cur.state != CallSignalState.ended;
-          if (!hasCallForThisConv) {
-            // ignore: avoid_print
-            print('[VideoCallPage] spurious mount (no outgoing intent, no '
-                'active call for conv=${widget.conversationId}) — popping '
-                'instead of placing a call');
-            Navigator.of(context).maybePop();
-          }
-        });
+        if (!mounted) return;
+        // ignore: avoid_print
+        print('[VideoCallPage] spurious mount (no outgoing intent, no active '
+            'call for conv=${widget.conversationId}) — popping immediately, '
+            'NOT placing a call');
+        Navigator.of(context).maybePop();
       });
     }
     _resetHideTimer();
@@ -296,6 +294,11 @@ class _VideoCallPageState extends State<VideoCallPage>
 
   @override
   Widget build(BuildContext context) {
+    // Spurious/restored mount — plain black screen for the one frame before
+    // the post-frame pop fires (no "Calling…", no controls).
+    if (_spurious) {
+      return const Scaffold(backgroundColor: Colors.black);
+    }
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
