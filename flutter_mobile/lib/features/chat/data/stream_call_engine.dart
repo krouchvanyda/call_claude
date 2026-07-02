@@ -755,16 +755,69 @@ class StreamCallEngine {
         // ignore: avoid_print
         print('[StreamCallEngine] getOrCreate(callId=$callId, '
             'members=$calleeUserIds, ringing=$shouldRing, ringTimeout=60s)');
-        final getOrCreateResult = await call.getOrCreate(
-          memberIds: calleeUserIds,
-          ringing: shouldRing,
-          video: isVideo,
-          ring: const StreamRingSettings(
-            autoCancelTimeout: Duration(seconds: 60),
-            autoRejectTimeout: Duration(seconds: 60),
-            missedCallTimeout: Duration(seconds: 60),
-          ),
+        const ringSettings = StreamRingSettings(
+          autoCancelTimeout: Duration(seconds: 60),
+          autoRejectTimeout: Duration(seconds: 60),
+          missedCallTimeout: Duration(seconds: 60),
         );
+        // LOCKED-ACCEPT stall fix. On the callee path (!shouldRing) the
+        // Stream coordinator WS is often not yet healthy when we accept from
+        // a locked/background cold-start — `getOrCreate` then never resolves
+        // (its internal _waitUntilConnected sits on a dead coordinator
+        // socket), so join() hangs here forever: device log shows "connected
+        // as userId=N" then nothing (no getOrCreate result, no call.join, no
+        // media, both sides silent). Wrap it in a per-attempt timeout +
+        // retry: on timeout we re-issue getOrCreate on a freshly-nudged
+        // client, and by the 2nd/3rd try the coordinator WS is up.
+        //
+        // Scoped to the callee ONLY: getOrCreate(ringing:false) is idempotent
+        // (it just fetches/joins the already-created call), so retrying can
+        // NOT double-fire a VoIP push. The caller path (shouldRing:true) MUST
+        // stay a single call — a retry there would ring the callee twice — so
+        // it keeps the original one-shot await with no timeout.
+        Result<CallReceivedOrCreatedData>? getOrCreateResult;
+        if (shouldRing) {
+          getOrCreateResult = await call.getOrCreate(
+            memberIds: calleeUserIds,
+            ringing: true,
+            video: isVideo,
+            ring: ringSettings,
+          );
+        } else {
+          const maxGocAttempts = 3;
+          for (var gocAttempt = 1; gocAttempt <= maxGocAttempts; gocAttempt++) {
+            if (mySeq != _callSeq) {
+              try { await call.leave(); } catch (_) {}
+              return;
+            }
+            try {
+              getOrCreateResult = await call
+                  .getOrCreate(
+                    memberIds: calleeUserIds,
+                    ringing: false,
+                    video: isVideo,
+                    ring: ringSettings,
+                  )
+                  .timeout(const Duration(seconds: 8));
+              break; // resolved (success or failure Result) — stop retrying
+            } on TimeoutException {
+              // ignore: avoid_print
+              print('[StreamCallEngine] getOrCreate TIMED OUT (attempt '
+                  '$gocAttempt/$maxGocAttempts) — coordinator WS likely not '
+                  'ready in locked background; ${gocAttempt < maxGocAttempts ? "retrying after 1s" : "giving up"}');
+              if (gocAttempt < maxGocAttempts) {
+                await Future.delayed(const Duration(seconds: 1));
+              }
+            }
+          }
+        }
+        if (getOrCreateResult == null) {
+          // ignore: avoid_print
+          print('[StreamCallEngine] getOrCreate never resolved after retries '
+              '— aborting join (media leg cannot start)');
+          try { await call.leave(); } catch (_) {}
+          return;
+        }
         if (getOrCreateResult.isFailure) {
           // ignore: avoid_print
           print('[StreamCallEngine] getOrCreate FAILED: '
