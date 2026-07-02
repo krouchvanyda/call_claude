@@ -1044,6 +1044,12 @@ class CallkitEventHandler {
     // posts. If nothing is ringing, ABORT rather than corrupt a stale call.
     // iOS-only + additive: Android's FCM path always carries `call_cid`, so
     // `hasRealCid` is true there and this block is skipped.
+    // Caller identity recovered from the backend on the UUID-only path (the
+    // Stream-VoIP CallKit event carries no caller extras). Used below to fill
+    // an empty `callerId`/`callerName` so the in-call page shows a real name
+    // instead of "Unknown".
+    String? recoveredCallerId;
+    String? recoveredCallerName;
     if (Platform.isIOS && signaling != null) {
       final hasRealCid =
           callCid.contains(':') || _parseBackendCallId(callCid).isNotEmpty;
@@ -1056,9 +1062,12 @@ class CallkitEventHandler {
           callCid = (rec.streamCallCid != null && rec.streamCallCid!.isNotEmpty)
               ? rec.streamCallCid!
               : 'default:erp-call-${rec.callId}';
+          recoveredCallerId = rec.callerId;
+          recoveredCallerName = rec.callerName;
           // ignore: avoid_print
           print('[CallkitEventHandler] _handleAccept · recovered real cid '
-              '$callCid (backend call id=${rec.callId})');
+              '$callCid (backend call id=${rec.callId}) '
+              'caller=${rec.callerName} (${rec.callerId})');
         } else {
           // ignore: avoid_print
           print('[CallkitEventHandler] _handleAccept ABORT · UUID-only accept '
@@ -1098,10 +1107,21 @@ class CallkitEventHandler {
     // Accept both so the iOS background-accept flow has the caller context it
     // needs to seed signaling (without it, step 1 below is skipped and
     // acceptIncoming bails). Additive — Android's keys still take priority.
-    final callerId =
+    var callerId =
         (params['caller_id'] ?? params['handle'])?.toString() ?? '';
-    final callerName =
+    var callerName =
         (params['caller_name'] ?? params['nameCaller'])?.toString() ?? callerId;
+    // Backfill from the backend recovery when the CallKit event carried no
+    // caller extras (the Stream-VoIP UUID-only path) — otherwise the in-call
+    // page renders "Unknown". The recovered name is UsersCache/conversation-
+    // resolved, so it's the real display name.
+    if (callerId.isEmpty && (recoveredCallerId?.isNotEmpty ?? false)) {
+      callerId = recoveredCallerId!;
+    }
+    if ((callerName.isEmpty || callerName == callerId) &&
+        (recoveredCallerName?.isNotEmpty ?? false)) {
+      callerName = recoveredCallerName!;
+    }
     // ignore: avoid_print
     print(
       '[CallkitEventHandler] _handleAccept · '

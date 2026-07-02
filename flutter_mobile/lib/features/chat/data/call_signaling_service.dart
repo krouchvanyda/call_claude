@@ -1159,8 +1159,15 @@ class CallSignalingService {
   /// list the recent calls, pick the newest RINGING one whose caller isn't us,
   /// and return its real `{callId, streamCallCid}`. Returns null if nothing is
   /// ringing (a stale CallKit notification) so the caller can abort safely.
-  Future<({String callId, String? streamCallCid})?>
-      recoverRingingInviteFromBackend() async {
+  Future<
+      ({
+        String callId,
+        String? streamCallCid,
+        String callerId,
+        String callerName,
+        String conversationId,
+        bool isVideo,
+      })?> recoverRingingInviteFromBackend() async {
     final Map<String, dynamic> page;
     try {
       page = await remote.listCalls(page: 1, pageSize: 20);
@@ -1203,12 +1210,42 @@ class CallSignalingService {
     final id = best['id']?.toString() ?? '';
     if (id.isEmpty) return null;
     final cid = best['streamCallCid']?.toString();
+    // Caller identity so the in-call page shows a real name, not "Unknown".
+    // ChatCallDto ships `callerId` + `conversationId` + `type` but NOT a
+    // caller name — resolve it like the STOMP invite mapper does: UsersCache
+    // first, then the local direct conversation's name, then a `User #<id>`
+    // placeholder. This is the ONLY place the locked/killed accept can learn
+    // who's calling (the CallKit event carries no caller extras on the
+    // Stream-VoIP path).
+    final callerId = best['callerId']?.toString() ?? '';
+    final conversationId = best['conversationId']?.toString() ?? '';
+    final isVideo = (best['type']?.toString() ?? 'VOICE').toUpperCase() ==
+        'VIDEO';
+    String callerName = '';
+    if (callerId.isNotEmpty) {
+      final cached = UsersCache.instance.nameOf(callerId);
+      if (cached != null && cached.trim().isNotEmpty) {
+        callerName = cached.trim();
+      } else {
+        try {
+          final conv = await conversations.findDirectWith(callerId);
+          if (conv != null && conv.name.trim().isNotEmpty) {
+            callerName = conv.name.trim();
+          }
+        } catch (_) {/* fall through to placeholder */}
+      }
+      if (callerName.isEmpty) callerName = 'User #$callerId';
+    }
     // ignore: avoid_print
     print('[CallSignaling] recoverRingingInvite · found ringing call id=$id '
-        'cid=$cid');
+        'cid=$cid caller=$callerName ($callerId) conv=$conversationId');
     return (
       callId: id,
       streamCallCid: (cid == null || cid.isEmpty) ? null : cid,
+      callerId: callerId,
+      callerName: callerName,
+      conversationId: conversationId,
+      isVideo: isVideo,
     );
   }
 
