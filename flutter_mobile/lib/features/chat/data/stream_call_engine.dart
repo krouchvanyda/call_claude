@@ -806,6 +806,21 @@ class StreamCallEngine {
                     ringing: false,
                     video: isVideo,
                     ring: ringSettings,
+                    // watch:false is the LOCKED-BG fix. Device log proved the
+                    // coordinator WS DOES connect (`connect() attempt 1 →
+                    // CONNECTED`) yet getOrCreate STILL times out. With the
+                    // default watch:true, Call._performGetOperation opens a WS
+                    // event-watch subscription (_observeEvents + setWatchedCall)
+                    // as part of the op — and iOS suspends the freshly
+                    // push-woken socket right after the handshake, so that
+                    // watch round-trip stalls forever. The callee is only
+                    // JOINING an already-created call; it doesn't need the
+                    // coordinator watch (we track call state directly via
+                    // _attachEndListener + call.join's own SFU connection). So
+                    // fetch WITHOUT watching → the plain REST getOrCreate
+                    // returns and the media leg can form. Caller path keeps
+                    // watch:true (foreground, WS healthy).
+                    watch: false,
                   )
                   .timeout(const Duration(seconds: 8));
               break; // resolved (success or failure Result) — stop retrying
