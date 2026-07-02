@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import '../widgets/call_permission_gate.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:stream_webrtc_flutter/stream_webrtc_flutter.dart' as rtc;
 
+import '../../../../core/router/route_paths.dart';
 import '../../../../core/theme/app_font_size.dart';
 import '../../../../core/theme/app_label.dart';
 import '../../data/call_signaling_service.dart';
@@ -122,11 +124,23 @@ class _VoiceCallPageState extends State<VoiceCallPage>
       _spurious = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        // ignore: avoid_print
-        print('[VoiceCallPage] spurious mount (no outgoing intent, no active '
-            'call for conv=${widget.conversationId}) — popping immediately, '
-            'NOT placing a call');
-        Navigator.of(context).maybePop();
+        // Leave this bogus call route. If there's a screen behind it (normal
+        // case), pop back to it. If the call route is the ONLY route — which
+        // happens when it's restored onto an empty stack on app reopen —
+        // popping is a no-op and would strand the user on a blank screen, so
+        // navigate to the app home instead.
+        final rootNav = Navigator.of(context, rootNavigator: true);
+        if (rootNav.canPop()) {
+          // ignore: avoid_print
+          print('[VoiceCallPage] spurious mount (conv=${widget.conversationId})'
+              ' — popping back to the previous screen');
+          rootNav.pop();
+        } else {
+          // ignore: avoid_print
+          print('[VoiceCallPage] spurious mount (conv=${widget.conversationId})'
+              ' — nothing behind it, going to ${RoutePaths.dashboard}');
+          GoRouter.of(context).go(RoutePaths.dashboard);
+        }
       });
     }
   }

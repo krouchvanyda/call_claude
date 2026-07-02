@@ -4,8 +4,10 @@ import '../widgets/call_permission_gate.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:stream_video_flutter/stream_video_flutter.dart';
 
+import '../../../../core/router/route_paths.dart';
 import '../../../../core/theme/app_font_size.dart';
 import '../../../../core/theme/app_label.dart';
 import '../../data/call_signaling_service.dart';
@@ -105,11 +107,21 @@ class _VideoCallPageState extends State<VideoCallPage>
       _spurious = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        // ignore: avoid_print
-        print('[VideoCallPage] spurious mount (no outgoing intent, no active '
-            'call for conv=${widget.conversationId}) — popping immediately, '
-            'NOT placing a call');
-        Navigator.of(context).maybePop();
+        // Leave this bogus call route — pop to the screen behind it, or (when
+        // it's the only route on reopen) go to the app home so the user isn't
+        // stranded on a blank screen.
+        final rootNav = Navigator.of(context, rootNavigator: true);
+        if (rootNav.canPop()) {
+          // ignore: avoid_print
+          print('[VideoCallPage] spurious mount (conv=${widget.conversationId})'
+              ' — popping back to the previous screen');
+          rootNav.pop();
+        } else {
+          // ignore: avoid_print
+          print('[VideoCallPage] spurious mount (conv=${widget.conversationId})'
+              ' — nothing behind it, going to ${RoutePaths.dashboard}');
+          GoRouter.of(context).go(RoutePaths.dashboard);
+        }
       });
     }
     _resetHideTimer();
