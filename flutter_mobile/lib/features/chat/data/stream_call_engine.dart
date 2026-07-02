@@ -214,6 +214,15 @@ class StreamCallEngine {
   final StreamController<Call> _incomingCallController =
       StreamController<Call>.broadcast();
   StreamSubscription<Call?>? _incomingCallSub;
+  // Stream's OWN push-package call-event stream (StreamVideoCallkitManager →
+  // ACTION_CALL_TOGGLE_AUDIO_SESSION etc.). On a LOCKED accept it is STREAM's
+  // CXProvider — not flutter_callkit_incoming's — that owns the CallKit call
+  // and receives `didActivate`, so the audio-activation signal arrives HERE,
+  // not on `FlutterCallkitIncoming.onEvent`. We bridge it to
+  // [onCallKitAudioSessionActivated] so the mic/route restart runs on the
+  // now-live CallKit session (the fix for "locked accept connects + media leg
+  // up but both sides silent").
+  StreamSubscription<RingingEvent>? _pushCallEventSub;
 
   /// Pending incoming Stream Call — the one currently ringing. We keep
   /// a reference because Stream needs us to call `accept()` / `reject()`
@@ -1707,6 +1716,8 @@ class StreamCallEngine {
           'so Stream falls back to FCM/APNs push for incoming calls');
       await _incomingCallSub?.cancel();
       _incomingCallSub = null;
+      await _pushCallEventSub?.cancel();
+      _pushCallEventSub = null;
       // `disconnect()` drops the WebSocket so Stream's coordinator marks this
       // device offline → the next call rings via the APNs VoIP push, not the
       // (invisible-while-backgrounded) WS event. Guard with a timeout: its
@@ -2170,6 +2181,36 @@ class StreamCallEngine {
         _incomingCallController.add(call);
       }
     });
+    // LOCKED-AUDIO fix. On a locked/background accept it is STREAM's own
+    // CXProvider (StreamVideoCallkitManager, in stream_video_push_notification)
+    // that owns the CallKit call and receives `provider(_:didActivate:)` — NOT
+    // flutter_callkit_incoming — so the `Event.actionCallToggleAudioSession`
+    // our callkit_event_handler listens for on `FlutterCallkitIncoming.onEvent`
+    // NEVER arrives on that path. Stream instead emits the activation as an
+    // `ActionCallToggleAudioSession(isActive:true)` on ITS push manager's
+    // `onCallEvent`. Bridge that here to the same route/mic restart the
+    // foreground path uses — without it, the locked call connects and the
+    // media leg comes up, but WebRTC's audio unit was started before CallKit
+    // activated the shared AVAudioSession (device log: "Session activation
+    // failed"), so both sides stay silent.
+    await _pushCallEventSub?.cancel();
+    _pushCallEventSub = _client!.pushNotificationManager?.onCallEvent.listen(
+      (event) {
+        if (event is ActionCallToggleAudioSession) {
+          // ignore: avoid_print
+          print('[StreamCallEngine] Stream push onCallEvent · '
+              'ToggleAudioSession(isActive=${event.isActive})');
+          if (event.isActive && Platform.isIOS) {
+            unawaited(onCallKitAudioSessionActivated());
+          }
+        }
+      },
+      onError: (Object e) {
+        // ignore: avoid_print
+        print('[StreamCallEngine] pushNotificationManager.onCallEvent '
+            'error: $e');
+      },
+    );
     try {
       await _client!.connect();
       // ignore: avoid_print
@@ -2444,6 +2485,8 @@ class StreamCallEngine {
     await leave();
     await _incomingCallSub?.cancel();
     _incomingCallSub = null;
+    await _pushCallEventSub?.cancel();
+    _pushCallEventSub = null;
     await _activeStateSub?.cancel();
     _activeStateSub = null;
     await _peerJoinedSub?.cancel();
