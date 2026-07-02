@@ -696,6 +696,9 @@ class StreamCallEngine {
             '_ensureClient');
         return;
       }
+      // ignore: avoid_print
+      print('[StreamCallEngine] join · past post-_ensureClient supersede '
+          'check (seq intact) — resolving Call ref next');
 
       // CID is `type:id` — split and feed both halves to the SDK.
       // Tolerant of a missing `:` (treat the whole string as the id
@@ -732,6 +735,9 @@ class StreamCallEngine {
       // starts Stream's outgoing foreground-service notification, and a
       // reject can land before we promote this to _activeCall.
       _inFlightCall = call;
+      // ignore: avoid_print
+      print('[StreamCallEngine] join · Call ref ready (skipGetOrCreate='
+          '$skipGetOrCreate) — ${skipGetOrCreate ? "going straight to" : "about to getOrCreate then"} call.join()');
       if (!skipGetOrCreate) {
         // `ringing: true` tells Stream to push the VoIP notification to
         // every `memberId` — that's what lights up the full-screen
