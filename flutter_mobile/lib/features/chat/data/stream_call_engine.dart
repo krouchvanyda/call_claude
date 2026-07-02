@@ -2212,7 +2212,40 @@ class StreamCallEngine {
       },
     );
     try {
-      await _client!.connect();
+      // Connect the coordinator WS with retries. `StreamVideo.connect()`
+      // returns SUCCESS only after the coordinator WebSocket finishes its
+      // handshake (connect → connectUser → _waitUntilConnected, a hard 5s WS
+      // timeout inside the SDK). In the LOCKED iOS background that 5s often
+      // isn't enough on the first try — iOS throttles the freshly
+      // push-woken isolate — so connect() fails, yet we used to ignore the
+      // Result and print "connected" anyway. EVERY coordinator op then
+      // (getOrCreate / join) sits on the SDK's own `_waitUntilConnected`
+      // against the still-dead WS and TIMES OUT → media leg never forms →
+      // both sides silent (device log: getOrCreate TIMED OUT ×3). Plain
+      // HTTPS works there (the /chats polling succeeds throughout), so the
+      // WS just needs more handshake attempts. Retry connect() a few times;
+      // each attempt gives the WS another 5s window. Foreground/outgoing
+      // connect on attempt 1 so they see no change.
+      const maxConnectAttempts = 4;
+      var wsConnected = false;
+      for (var attempt = 1; attempt <= maxConnectAttempts; attempt++) {
+        final result = await _client!.connect();
+        wsConnected = result.isSuccess;
+        // ignore: avoid_print
+        print('[StreamCallEngine] connect() attempt '
+            '$attempt/$maxConnectAttempts → '
+            '${wsConnected ? "coordinator WS CONNECTED" : "FAILED: $result"}');
+        if (wsConnected) break;
+        if (attempt < maxConnectAttempts) {
+          await Future<void>.delayed(const Duration(seconds: 1));
+        }
+      }
+      if (!wsConnected) {
+        // ignore: avoid_print
+        print('[StreamCallEngine] ⚠ coordinator WS NOT connected after '
+            '$maxConnectAttempts attempts — getOrCreate/join will likely time '
+            'out (locked-background WS handshake blocked by iOS)');
+      }
       // ignore: avoid_print
       print('[StreamCallEngine] connected as userId=$userId');
       // iOS-only push diagnostic — answers "does APN work?" without a
