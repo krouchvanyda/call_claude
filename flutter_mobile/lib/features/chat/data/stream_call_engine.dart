@@ -2177,7 +2177,19 @@ class StreamCallEngine {
       // iOS-only push diagnostic — answers "does APN work?" without a
       // backend round-trip. Guarded to iOS so Android runtime is untouched.
       if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
-        await _logPushDiagnostics();
+        // CRITICAL: fire-and-forget. `_logPushDiagnostics` internally awaits
+        // `_checkStreamDevices` → `_client.getDevices()`, a coordinator API
+        // call that HANGS in the locked background (coordinator WS not
+        // healthy yet, then retries 4×). Awaiting it here blocked
+        // `_ensureClient` from returning to `join()` — so on a LOCKED accept
+        // the device log showed "connected as userId=N" + "VoIP token
+        // present" then NOTHING (no getOrCreate, no call.join, no media, both
+        // sides silent) even though the UI showed Connected. It is
+        // diagnostic-only ("nothing here changes call behaviour"), so it must
+        // never gate the accept path. unawaited() lets join() proceed
+        // straight to getOrCreate while the logging settles in the
+        // background.
+        unawaited(_logPushDiagnostics());
         // Close the "first minimized call has no ring" race: the SDK
         // registers push devices once on connect, but the PushKit VoIP
         // token often isn't ready yet, so the `apn` device (the iOS ring
@@ -2228,7 +2240,10 @@ class StreamCallEngine {
     }
     // (3) Stream device list — check now AND again after registration has
     // had time to settle (the VoIP token stream registers async).
-    await _checkStreamDevices('at-connect');
+    // NEVER await these: `_checkStreamDevices` → `_client.getDevices()` is a
+    // coordinator round-trip that stalls in the locked background, and this
+    // is diagnostic-only. Fire-and-forget so it can't gate any caller.
+    unawaited(_checkStreamDevices('at-connect'));
     Future.delayed(const Duration(seconds: 3),
         () => _checkStreamDevices('+3s'));
   }
