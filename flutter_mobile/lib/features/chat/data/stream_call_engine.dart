@@ -258,6 +258,39 @@ class StreamCallEngine {
       StreamController<StreamCallEndReason>.broadcast();
   StreamSubscription<CallState>? _activeStateSub;
 
+  /// Central gate for every `onStreamCallEnded` emission.
+  ///
+  /// CRITICAL (silent LOCKED-accept fix): while a call is mid-setup
+  /// (`_callSetupInProgress`) and not yet promoted to `_activeCall`, our
+  /// media leg does not exist yet — so ANY Stream-media "the call ended"
+  /// signal at this point is necessarily churn, NOT a real hangup:
+  ///   * a freshly-connected client replays `incomingCall == null`
+  ///     (the ring slot is already cleared on a locked cold-accept) →
+  ///     `incomingCleared`;
+  ///   * the background reconnect passes transiently through
+  ///     `Disconnected` / reconnection states.
+  /// The consumer (`_handleStreamCallEnded`) reacts by calling
+  /// `endActiveCall()`, which bumps `_callSeq` — and that supersedes the
+  /// very `join()` / `acceptByCid()` that is trying to bring the media leg
+  /// up (it sees `mySeq != _callSeq` right after `_ensureClient()` and
+  /// bails). Net effect on device: "connected as userId=N" then nothing —
+  /// no join, no media, both sides silent. A genuine caller-hangup during
+  /// our accept setup does NOT rely on this path: it arrives over the wire
+  /// (`CallHangupEvent` → STOMP) and, failing that, the post-join
+  /// remote-left watcher fires once we're actually connected. So dropping
+  /// Stream-media end events during setup is safe and closes the race.
+  void _emitCallEnded(StreamCallEndReason reason) {
+    if (_callEndedController.isClosed) return;
+    if (_callSetupInProgress && _activeCall == null) {
+      // ignore: avoid_print
+      print('[StreamCallEngine] onStreamCallEnded($reason) SUPPRESSED — '
+          'call setup in flight, no media leg yet (spurious end during '
+          '_ensureClient; would supersede the in-flight join)');
+      return;
+    }
+    _callEndedController.add(reason);
+  }
+
   /// Debounce timer for a suspected remote-left. On stream_video 1.4.x the
   /// participant roster can momentarily read empty even while the call stays
   /// `Connected` — a transient right after join (the SDK re-syncs the
@@ -1390,9 +1423,7 @@ class StreamCallEngine {
               // ignore: avoid_print
               print('[StreamCallEngine] debounce elapsed · roster still '
                   'empty + connected → firing onStreamCallEnded (remoteLeft)');
-              if (!_callEndedController.isClosed) {
-                _callEndedController.add(StreamCallEndReason.remoteLeft);
-              }
+              _emitCallEnded(StreamCallEndReason.remoteLeft);
             } else {
               // ignore: avoid_print
               print('[StreamCallEngine] debounce elapsed · remote returned '
@@ -1421,16 +1452,12 @@ class StreamCallEngine {
             'reason=$reason · isReplaced=$isReplaced · '
             'firing-end-event=${!isReplaced}');
         if (isReplaced) return;
-        if (!_callEndedController.isClosed) {
-          _callEndedController.add(StreamCallEndReason.disconnected);
-        }
+        _emitCallEnded(StreamCallEndReason.disconnected);
       } else if (status is CallStatusReconnectionFailed) {
         // ignore: avoid_print
         print('[StreamCallEngine] Stream call ReconnectionFailed — '
             'firing onStreamCallEnded');
-        if (!_callEndedController.isClosed) {
-          _callEndedController.add(StreamCallEndReason.reconnectFailed);
-        }
+        _emitCallEnded(StreamCallEndReason.reconnectFailed);
       } else {
         // Log every other state transition so we can see the call's
         // lifecycle (Joining → Joined → Connected → ...) and spot any
@@ -2068,9 +2095,7 @@ class StreamCallEngine {
         // Stream cleared the incoming call — caller withdrew before
         // we answered. Surface as "ended" so the local overlay pops.
         _pendingIncomingCall = null;
-        if (!_callEndedController.isClosed) {
-          _callEndedController.add(StreamCallEndReason.incomingCleared);
-        }
+        _emitCallEnded(StreamCallEndReason.incomingCleared);
         return;
       }
       _pendingIncomingCall = call;
